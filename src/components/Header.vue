@@ -11,7 +11,7 @@ export default{
 <template>
     <div class="headerArea">
         <RouterLink class = "routeItem"  to="/">Home</RouterLink>
-        <RouterLink class = "routeItem"  to="/Page2">Page2</RouterLink>
+        <RouterLink class = "routeItem"  to="/Questionnaire">問卷</RouterLink>
     </div>    
 </template>
 
