@@ -12,6 +12,7 @@ export default{
     },
     methods:{
         nextPage(){
+            sessionStorage.setItem('inputData', JSON.stringify(this.firstPage)) //名字叫inputData，存firstPage進去
             this.$emit('changeView', 'QuestionContent')
         },
         inputBox(text){
@@ -42,6 +43,13 @@ export default{
     created(){
         this.updateStartTime();
         this.updateEndTime();
+
+  
+        let savedData = sessionStorage.getItem('inputData')
+        if (savedData){
+            this.firstPage = JSON.parse(savedData)  
+        }
+
     }
     
 }
@@ -52,22 +60,25 @@ export default{
         <div class="inputArea">
             <p>問卷名稱: </p>
             <input type="text" class="inputResize" v-model="firstPage.formName" v-bind:style="{width: inputBox(firstPage.formName)[0]+'px', height:inputBox(firstPage.formName)[1]}+'px'"  placeholder="問卷名稱">
-            <h1>{{ firstPage.startDate }}</h1>
+            <h1>{{ firstPage.formName }}</h1>
         </div>  
         
         <div class="inputArea">
             <p>問卷說明: </p>
             <input type="text" class="inputResize" v-model="firstPage.formDescribe" placeholder="問卷說明">
+            <h1>{{ firstPage.formDescribe }}</h1>
         </div>
 
         <div class="inputArea">
             <p>開始時間: </p>
             <input type="date" class="inputFixed" v-model="firstPage.startDate">
+            <h1>{{ firstPage.startDate }}</h1>
         </div>
         
         <div class="inputArea">
             <p>結束時間: </p>
             <input type="date" class="inputFixed" v-model="firstPage.endDate">
+            <h1>{{ firstPage.endDate }}</h1>
         </div>
 
         <button v-on:click="nextPage">下一頁</button>
