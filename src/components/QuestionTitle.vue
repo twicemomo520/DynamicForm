@@ -5,7 +5,7 @@ export default{
             firstPage:{
                 formName:'',
                 formDescribe:'',
-                startDate:'2024-07-05',
+                startDate:'',
                 endDate:''   
             },
         }
@@ -20,17 +20,28 @@ export default{
             let width = len % 32
             return [width, height]
         },
-        updateTime(){
+        updateStartTime(){
             let now = new Date()
+            now.setDate(now.getDate() + 2); // 当前日期加上2天
+
             let year = now.getFullYear();       
-            let month = String(now.getMonth()+1);       
-            let day = String(now.getDate());      
-            // return [String(year)+'-'+String(month)+'-'+String(day)] 
-            this.currentDate = String(year)+'-'+String(month)+'-'+String(day)
+            let month = String(now.getMonth() + 1).padStart(2, '0');   
+            let day = String(now.getDate()).padStart(2, '0');
+            this.firstPage.startDate = `${year}-${month}-${day}`;
+        },
+        updateEndTime(){
+            let now = new Date()
+            now.setDate(now.getDate() + 7); // 当前日期加上2天
+
+            let year = now.getFullYear();       
+            let month = String(now.getMonth() + 1).padStart(2, '0');   
+            let day = String(now.getDate()).padStart(2, '0');
+            this.firstPage.endDate = `${year}-${month}-${day}`;
         }
     },
     created(){
-        this.updateTime();
+        this.updateStartTime();
+        this.updateEndTime();
     }
     
 }
@@ -41,7 +52,7 @@ export default{
         <div class="inputArea">
             <p>問卷名稱: </p>
             <input type="text" class="inputResize" v-model="firstPage.formName" v-bind:style="{width: inputBox(firstPage.formName)[0]+'px', height:inputBox(firstPage.formName)[1]}+'px'"  placeholder="問卷名稱">
-            <h1>{{ this.currentDate }}</h1>
+            <h1>{{ firstPage.startDate }}</h1>
         </div>  
         
         <div class="inputArea">
