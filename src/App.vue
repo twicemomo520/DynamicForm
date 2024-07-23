@@ -25,6 +25,8 @@ import Header from './components/Header.vue'
   background: 
         linear-gradient(rgba(255,255,255, 0.7), rgba(0,0,0, 0.7)), /* 半透明背景颜色 */
         url("./assets/mapleStory.png");
+  background-repeat: no-repeat;      
+  background-size: cover;
  
 
   

@@ -10,13 +10,25 @@ export default{
     },
     data(){
         return{
-            currentView:"QuestionTitle"
+            currentView:"QuestionTitle",
+            titleData: null,
+            allData:null
         }
     },
     methods:{
         changeView(newView){
             this.currentView = newView;
             console.log(this.currentView)
+        },
+        handelTitleData(data){
+            this.titleData = data
+        }
+
+    },
+    created(){
+        let savedData = sessionStorage.getItem('inputData')
+        if (savedData){
+            this.allData = JSON.parse(savedData)
         }
     }
 }
@@ -37,7 +49,7 @@ export default{
 
 
     <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'"
-    @changeView="changeView">
+    @changeView="changeView" @sendTitleData="handelTitleData">
     </QuestionTitle>
 
 
@@ -86,13 +98,13 @@ $pinkcolor10:rgb(255, 200, 212);
     background-color: $pinkcolor1;
 }
 .h1Class{
-    width: 100dvw;
+    width: 30%;
     height: 10dvh;
     display: flex;
     padding-top: 15px;
     align-content: center;
     justify-content: flex-start;
-    margin-left: 40%;
+    margin-right: 30%;
     margin-top: 2%;
     h1{
         background: $blackcolor10;

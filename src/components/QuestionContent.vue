@@ -11,12 +11,20 @@ export default{
         }
     },
     methods:{
+        previousPage(){
+            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
+            this.$emit("changeView", 'QuestionTitle')
+        },
         nextPage(){
             this.$emit("changeView", 'QuestionCheck')
         },
-        previousPage(){
-            this.$emit("changeView", 'QuestionTitle')
-        },
+
+    },
+    created(){
+        let savedData = sessionStorage.getItem('inputDataContent')
+        if (savedData){
+            this.secondPage = JSON.parse(savedData)
+        }
     }
 }
 </script>
@@ -27,17 +35,13 @@ export default{
         <div class="inputArea1">
             <p>問題: </p>
             <input type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
-            <h1>{{ secondPage.formQuestion }}</h1>
-
             <select v-model="secondPage.formSingleOrMulti">
                 <option value="single" >單選題</option>
                 <option value="multi" >多選題</option>
             </select>
-            <h1>{{ secondPage.formSingleOrMulti }}</h1>
-            
+            <h1>{{ secondPage }}</h1>
             <input type="checkbox" id = "mustCheck" v-model="secondPage.formMustCheckbox">
             <label for="mustCheck">必填</label>
-            <h1>{{ secondPage.formMustCheckbox }}</h1>
 
         </div>  
 
@@ -46,8 +50,7 @@ export default{
             <div class="littleArea">
                 <p>(多個答案請以; 分隔)</p>
                 <input type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
-                <h1>{{ secondPage.formOption }}</h1>
-                <button type="button" class="addButton">加入</button>
+                <button type="button" class="addButton" v-on:click="">加入</button>
             </div>
         </div>
 
