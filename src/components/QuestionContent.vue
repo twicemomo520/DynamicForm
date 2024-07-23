@@ -14,32 +14,18 @@ export default{
 <template>
     <div class="maxArea">
 
-        <div class="inputOuter">
-            <h1>問題: </h1>
-            <div class="input">
-                <input type="text" value="請選取最喜歡的人">
-                <select>
-                    <option value="single">單選題</option>
-                    <option value="multi">多選題</option>
-                </select>
-                <input type="checkbox" id = "mustCheck">
-                <label for="mustCheck">必填</label>
-            </div>  
-        </div>
-        <div class="input">
-            <h1>問卷說明: </h1>
-            <input type="text" value="不要問你會怕"
-        </div>
+        <div class="inputArea">
+            <p>問題: </p>
+            <input type="text" value="請選取最喜歡的人">
+            <select>
+                <option value="single">單選題</option>
+                <option value="multi">多選題</option>
+            </select>
+            <input type="checkbox" id = "mustCheck">
+            <label for="mustCheck">必填</label>
+        </div>  
 
-        <div class="input">
-            <h1>開始時間: </h1>
-            <input type="date" value="2024-07-20">
-        </div>
-        
-        <div class="input">
-            <h1>結束時間: </h1>
-            <input type="date" value="2024-07-20">
-        </div>
+
         <button v-on:click="previousPage">上一頁</button>
         <button v-on:click="nextPage">下一頁</button>
     </div>
@@ -47,38 +33,60 @@ export default{
 
 
 <style scoped lang="scss">
-
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Zen Kaku Gothic New", sans-serif;
+}
 .maxArea{
     
     width: 60%;
-    height: 100%;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
 
-    // backdrop-filter: blur(5px);
-    // box-shadow: 0 25px 45px rgba(0,0,0,0.1);
-    // border: 1px solid rgba(255,255,255,0.5);
-    // border-right: 1px solid rgba(255,255,255,0.2);
-    // border-bottom: 1px solid rgba(255,255,255,0.2);
-    
 
-    .input{
+    .inputArea{
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: left;
-        h1{
+        p{
             padding: 20px;
             font-weight: 400;
         }
 
         input{
-            width: max-content;
-            height: max-content;
+            width: 150px;
+            height:30px;
             flex-wrap: wrap;
+            background-color:#ffe3e3;
+            color:#737373;
+            border: 1px solid rgb(207, 111, 131);
+            &:focus {
+                outline: none; /* 移除默認的focus邊框 */
+                border: 1px solid rgb(207, 111, 131);
+            }
+            &:nth-child(0){
+                width: 500px;
 
+            }
+        }
+        select{
+            margin-left: 20px;
+        }
+
+        #mustCheck{
+            width: 15px;;
+            margin-left: 20px;
+        }
+        .inputResize{
+            width: 500px;
+            height: 100px;
+            margin-top: 1%;
         }
 
     }
