@@ -7,8 +7,28 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
+    {
+      path: '/ManageSurvey',
+      name: 'ManageSurvey',
+      component: () => import('../views/ManageSurvey.vue'),
+      children:[
+          { path: '/Questionnaire', 
+            name: 'Questionnaire',
+            component: () => import('../views/Questionnaire.vue')
+          },
+        ]
+    },
+    {
+      path: '/FillSurvey',
+      name: 'FillSurvey',
+      component: () => import('../views/FillSurvey.vue'),
+      
+    },
+
+
+
     {
       path: '/Questionnaire',
       name: 'Questionnaire',

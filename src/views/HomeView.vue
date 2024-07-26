@@ -2,15 +2,95 @@
 </script>
 
 <template>
-<h1>\(=_=)/</h1>
+    <div class="entrance">
+        <div class="container">
+            <div class="manageSurvey-container">
+                <i class="fa-solid fa-file-lines"></i>
+                <RouterLink class = "manageSurvey"  to="/ManageSurvey">管理問卷</RouterLink>
+            </div>
+            <div class="fillSurvey-container">
+                <i class="fa-solid fa-file-signature"></i>
+                <RouterLink class = "fillSurvey"  to="/FillSurvey">填問卷</RouterLink>
+            </div>
+        </div>
+    </div>   
 </template>
 
 <style scoped lang="scss">
-h1{
-    color: aliceblue;
-    font-size: 200px;
+.entrance{
     width: 100dvw;
     height: 100dvh;
-    padding-left: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // background:linear-gradient(45deg, #FFAFBD, #ffc3a0);
+    background:linear-gradient(145deg, #c7a8ef 0%, #c7a8ef 50%, #8249cd 50%, #8249cd 100%);
+
+    .container{
+        width: 80%;
+        height: 60%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+        .manageSurvey-container{
+            width: 350px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #8249cd;
+            border-radius: 55px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            &:hover{
+                transition: 0.5s;
+                transform: rotate(180deg) scaleY(-1) scaleX(-1) 
+
+            }
+
+
+            .manageSurvey,.fa-file-lines{
+                text-decoration: none;
+                color: white;
+                font-size: 40px;
+                font-weight: 500;
+
+            }
+            .manageSurvey,.fa-file-lines{
+                font-size: 28px;
+                margin-left: 8px;
+
+            }
+        }
+        .fillSurvey-container{
+            width: 350px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #c7a8ef;
+            border-radius: 55px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            &:hover{
+                transition: 0.5s;
+                transform: rotate(180deg) scaleY(-1) scaleX(-1) 
+
+            }
+
+            .fillSurvey,.fa-file-signature{
+                text-decoration: none;
+                color: black;
+                font-size: 40px;
+                // font-weight: 500;
+            }
+            .fillSurvey,.fa-file-signature{
+                font-size: 28px;
+                margin-left: 8px;
+
+            }
+        }
+    }
 }
 </style>

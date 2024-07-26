@@ -2,8 +2,12 @@
 import QuestionTitle from "../components/QuestionTitle.vue"
 import QuestionContent from "../components/QuestionContent.vue"
 import QuestionCheck from "../components/QuestionCheck.vue"
+
+import QuestionHome from "../components/QuestionHome.vue"
+
 export default{
     components:{
+        QuestionHome,
         QuestionTitle,
         QuestionContent,
         QuestionCheck

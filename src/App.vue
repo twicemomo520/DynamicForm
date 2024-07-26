@@ -22,9 +22,9 @@ import Header from './components/Header.vue'
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: 
-        linear-gradient(rgba(255,255,255, 0.7), rgba(0,0,0, 0.7)), /* 半透明背景颜色 */
-        url("./assets/maplestoryPort.png");
+  // background: 
+  //       linear-gradient(rgba(255,255,255, 0.7), rgba(0,0,0, 0.7)), /* 半透明背景颜色 */
+  //       url("./assets/maplestoryPort.png");
   background-repeat: no-repeat;      
   background-size: cover;
  
