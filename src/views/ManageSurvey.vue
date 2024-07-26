@@ -2,7 +2,7 @@
 </script>
 
 <template>
-<h1>歡迎來到管理survey的地方</h1>
+<RouterLink class = "Questionnaire"  to="/Questionnaire">新增問卷</RouterLink>
 </template>
 
 <style scoped lang="scss">

@@ -45,7 +45,7 @@
             cursor: pointer;
             &:hover{
                 transition: 0.5s;
-                transform: rotate(180deg) scaleY(-1) scaleX(-1) 
+                transform: rotateX(360deg) scale(1.2);
 
             }
 
@@ -75,7 +75,7 @@
             cursor: pointer;
             &:hover{
                 transition: 0.5s;
-                transform: rotate(180deg) scaleY(-1) scaleX(-1) 
+                transform: rotateX(360deg) scale(1.2); 
 
             }
 
