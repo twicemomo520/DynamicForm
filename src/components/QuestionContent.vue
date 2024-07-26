@@ -3,28 +3,114 @@ export default{
     data(){
         return{
             secondPage:{
+                id: '',
                 formQuestion:'',
                 formSingleOrMulti:'',
                 formMustCheckbox:false,
                 formOption:'',
             },
+            inputDataAll:null,
+
+            tableData:[],
+            
+            selectedRows:[],
+
+            isEditing:false
         }
+    },
+    computed:{
+        
     },
     methods:{
         previousPage(){
             sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
+            sessionStorage.setItem("inputDataAll", JSON.stringify(this.secondPage))
+            sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
+            
             this.$emit("changeView", 'QuestionTitle')
         },
         nextPage(){
+            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
+            sessionStorage.setItem("inputDataAll", JSON.stringify(this.secondPage))
+            sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
+
             this.$emit("changeView", 'QuestionCheck')
         },
+        pushToTable(){
+            if (!this.isEditing){
+                let length = this.tableData.length
+                this.secondPage['id'] = length+1
+                let deepCopy = JSON.parse(JSON.stringify(this.secondPage));
+                this.tableData.push(deepCopy)
+                
+                this.secondPage = {
+                    formQuestion: '',
+                    formSingleOrMulti: '',
+                    formMustCheckbox: false,
+                    formOption: '',
+                    };
+                }     
+            else{
+                let index = this.tableData.findIndex(item => item.id === this.secondPage.id)
+                console.log(index)
+                if (index !== -1){
+                this.tableData.splice(index, 1, JSON.parse(JSON.stringify(this.secondPage)))
+            }
+                this.isEditing = false;
 
-    },
-    created(){
-        let savedData = sessionStorage.getItem('inputDataContent')
-        if (savedData){
-            this.secondPage = JSON.parse(savedData)
+                this.secondPage = {
+                    id: '',
+                    formQuestion: '',
+                    formSingleOrMulti: '',
+                    formMustCheckbox: false,
+                    formOption: '',
+                    };
+
+            }              
+        },
+        clearTableSession() {
+            // 清空 sessionStorage
+            sessionStorage.removeItem('tableData');
+        },
+        
+        deleteSelected(){
+            // 删除选中的行
+            this.tableData = this.tableData.filter((item, index) => !this.selectedRows.includes(index));
+            // 清空已选中的项
+            this.selectedRows = [];  
+            
+            this.tableData.forEach(function(item, index){
+                item.id = index+1
+            })
+        },
+
+        editSelected(item,index){
+            this.secondPage = {
+                id:item.id,
+                formQuestion: item.formQuestion,
+                formSingleOrMulti: item.formSingleOrMulti,
+                formMustCheckbox: item.formMustCheckbox,
+                formOption: item.formOption,
+            },
+            this.isEditing = true
         }
+    },
+
+
+    created(){
+        let savedContent = sessionStorage.getItem('inputDataContent')
+        if (savedContent){
+            this.secondPage = JSON.parse(savedContent)
+        }
+
+        let tableData = sessionStorage.getItem("tableData")
+        if (tableData){
+            this.tableData = JSON.parse(tableData)
+        }
+
+        window.addEventListener('beforeunload', this.clearTableSession);
+
+
     }
 }
 </script>
@@ -36,13 +122,15 @@ export default{
             <p>問題: </p>
             <input type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
             <select v-model="secondPage.formSingleOrMulti">
-                <option value="single" >單選題</option>
-                <option value="multi" >多選題</option>
+                <option value="單選" >單選題</option>
+                <option value="多選" >多選題</option>
             </select>
-            <h1>{{ secondPage }}</h1>
+            <!-- <h1>{{ tableData }}</h1> -->
             <input type="checkbox" id = "mustCheck" v-model="secondPage.formMustCheckbox">
             <label for="mustCheck">必填</label>
-
+            <!-- <h1>{{this.isEditing}}</h1>
+            <h1>{{this.secondPage}}</h1>            
+            <h1>{{this.tableData}}</h1> -->
         </div>  
 
         <div class="inputArea2" >
@@ -50,12 +138,12 @@ export default{
             <div class="littleArea">
                 <p>(多個答案請以; 分隔)</p>
                 <input type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
-                <button type="button" class="addButton" v-on:click="">加入</button>
+                <button type="button" class="addButton" v-on:click="pushToTable">{{isEditing ? '編輯完成' : '加入'}}</button>
             </div>
         </div>
 
         <div class="inputArea3">
-            <i class="fa-solid fa-trash"></i>
+            <i class="fa-solid fa-trash" v-on:click="deleteSelected"></i>
             <table>
                 <thead>
                     <tr>
@@ -69,29 +157,14 @@ export default{
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <th><input type="checkbox"></th>
-                        <th>#1</th>
-                        <th>請選取最喜歡的人</th>
-                        <th>單選題</th>
-                        <th><input type="checkbox"></th>
-                        <th>編輯</th>
-                    </tr>
-                    <tr>
-                        <th><input type="checkbox"></th>
-                        <th>#2</th>
-                        <th>請說明理由</th>
-                        <th>短述題</th>
-                        <th><input type="checkbox"></th>
-                        <th>編輯</th>
-                    </tr>
-                    <tr>
-                        <th><input type="checkbox"></th>
-                        <th>#3</th>
-                        <th>請選取在活動開始前有聽過</th>
-                        <th>單選題</th>
-                        <th><input type="checkbox"></th>
-                        <th>編輯</th>
+                    <tr v-for="(item,index) in tableData" :key="item.id">
+                        <th><input type="checkbox" v-model="selectedRows" :value="index"></th>
+                        <th>{{ item.id }}</th>
+                        <th>{{ item.formQuestion }}</th>
+                        <th>{{ item.formSingleOrMulti}}</th>
+                        <th>{{ item.formMustCheckbox ? '必填' : '非必填'}}</th>
+                        <!-- <th>{{ mustCheckbox }}</th> -->
+                        <th class = "tableEdit" v-on:click="editSelected(item, index)">編輯</th>
                     </tr>
                 </tbody>
             </table>
@@ -155,6 +228,7 @@ export default{
         #mustCheck{
             width: 15px;;
             margin-left: 20px;
+            accent-color: #4CAF50;
         }
         .inputResize{
             width: 500px;
@@ -227,6 +301,11 @@ export default{
 
         .fa-trash{
             font-size: 30px;
+            color: black;
+            cursor: pointer;
+            &:hover{
+                color: #5fa8d3;
+            }
         }
         table{
             width: 100%;
@@ -237,8 +316,14 @@ export default{
                 border: 1px solid black;
                 padding: 8px;
                 text-align: left;
-
-        }
+            }
+        .tableEdit{
+            cursor:pointer;
+            color:blue;
+            &:hover{
+                background-color:pink;
+            }
+            }
         }
 
     }

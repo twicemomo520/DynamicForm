@@ -19,11 +19,7 @@ export default{
         changeView(newView){
             this.currentView = newView;
             console.log(this.currentView)
-        },
-        handelTitleData(data){
-            this.titleData = data
         }
-
     },
     created(){
         let savedData = sessionStorage.getItem('inputData')
@@ -47,9 +43,9 @@ export default{
         <h1 v-on:click = "currentView ='QuestionCheck'">統計</h1>
     </div>
 
-
+    <h1>{{ allData }}</h1>
     <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'"
-    @changeView="changeView" @sendTitleData="handelTitleData">
+    @changeView="changeView" >
     </QuestionTitle>
 
 
