@@ -1,7 +1,11 @@
 ﻿<script>
+import database from "../assets/database.json"
+import axios from 'axios';
+
 export default{
     data(){
         return{
+            firstPage: {"firstPage":null},
             secondPage:{
                 id: '',
                 formQuestion:'',
@@ -9,7 +13,6 @@ export default{
                 formMustCheckbox:false,
                 formOption:'',
             },
-            inputDataAll:null,
 
             tableData:[],
             
@@ -24,17 +27,28 @@ export default{
     methods:{
         previousPage(){
             sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
-            sessionStorage.setItem("inputDataAll", JSON.stringify(this.secondPage))
             sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
             
             this.$emit("changeView", 'QuestionTitle')
         },
         nextPage(){
-            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
-            sessionStorage.setItem("inputDataAll", JSON.stringify(this.secondPage))
             sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
+            this.submitData()
 
             this.$emit("changeView", 'QuestionCheck')
+        },
+        submitData(){
+            this.firstPage.firstPage["tableData"] = this.tableData
+
+            axios.post('http://localhost:3000/save-data', this.firstPage)
+            .then(response => {
+                alert('Data saved successfully!');
+                })
+            .catch(error => {
+                console.error('Failed to save data:', error);
+                });
+            
+            this.clearTableSession()    
         },
         pushToTable(){
             if (!this.isEditing){
@@ -52,10 +66,10 @@ export default{
                 }     
             else{
                 let index = this.tableData.findIndex(item => item.id === this.secondPage.id)
-                console.log(index)
                 if (index !== -1){
-                this.tableData.splice(index, 1, JSON.parse(JSON.stringify(this.secondPage)))
-            }
+                    this.tableData.splice(index, 1, JSON.parse(JSON.stringify(this.secondPage)))
+                }
+
                 this.isEditing = false;
 
                 this.secondPage = {
@@ -71,12 +85,15 @@ export default{
         clearTableSession() {
             // 清空 sessionStorage
             sessionStorage.removeItem('tableData');
+            sessionStorage.removeItem('inputDataTitle');
+            sessionStorage.removeItem('inputDataContent');
+
         },
         
         deleteSelected(){
-            // 删除选中的行
+            // 删除選中的行
             this.tableData = this.tableData.filter((item, index) => !this.selectedRows.includes(index));
-            // 清空已选中的项
+            // 清空已選中的項目
             this.selectedRows = [];  
             
             this.tableData.forEach(function(item, index){
@@ -98,6 +115,11 @@ export default{
 
 
     created(){
+        let inputDataTitle = sessionStorage.getItem('inputDataTitle')
+        if (inputDataTitle){
+            this.firstPage.firstPage = JSON.parse(inputDataTitle)  
+        }
+
         let savedContent = sessionStorage.getItem('inputDataContent')
         if (savedContent){
             this.secondPage = JSON.parse(savedContent)
@@ -108,6 +130,8 @@ export default{
             this.tableData = JSON.parse(tableData)
         }
 
+
+
         window.addEventListener('beforeunload', this.clearTableSession);
 
 
@@ -117,7 +141,8 @@ export default{
 
 <template>
     <div class="maxArea">
-
+        <h1>table資料{{ tableData }}</h1>
+        <h1>第一個page{{ this.firstPage.firstPage }}</h1>
         <div class="inputArea1">
             <p>問題: </p>
             <input type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
@@ -173,7 +198,7 @@ export default{
 
 
         <button v-on:click="previousPage">上一頁</button>
-        <button v-on:click="nextPage">送出</button>
+        <button v-on:click="nextPage" >送出</button>
     </div>
 </template>
 
@@ -309,8 +334,8 @@ export default{
         }
         table{
             width: 100%;
-            border-collapse: collapse; /* 确保边框合并 */
-            border-spacing: 0; /* 确保中间没有空隙 */
+            border-collapse: collapse; /* 確保邊框合併 */
+            border-spacing: 0; /* 確保中間沒有空隙 */
 
             th, td{
                 border: 1px solid black;

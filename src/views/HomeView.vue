@@ -17,6 +17,31 @@
 </template>
 
 <style scoped lang="scss">
+
+@keyframes spin  {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+@keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(100px);
+            }
+            100% {
+                transform: rotate(360deg) translateX(100px);
+            }
+        }        
+@keyframes slideAnimation {
+            0%, 100% {
+                transform: translateX(0);   /* 在动画开始和结束时，按钮处于原始位置 */
+            }
+            50% {
+                transform: translateX(100dvw); /* 在动画中间，按钮向右移动100像素 */
+            }
+}
 .entrance{
     width: 100dvw;
     height: 100dvh;
@@ -43,12 +68,12 @@
             border-radius: 55px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             cursor: pointer;
+
             &:hover{
                 transition: 0.5s;
-                transform: rotateX(360deg) scale(1.2);
+                transform: rotateX(720deg) scale(1.4);
 
             }
-
 
             .manageSurvey,.fa-file-lines{
                 text-decoration: none;
@@ -73,9 +98,11 @@
             border-radius: 55px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             cursor: pointer;
+            animation: spin 5s linear infinite, orbit 0.5s linear infinite;
+            transform-origin: -50px 50%;
             &:hover{
                 transition: 0.5s;
-                transform: rotateX(360deg) scale(1.2); 
+                transform: rotateX(720deg) scale(1.4); 
 
             }
 

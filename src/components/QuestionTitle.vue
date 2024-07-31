@@ -7,9 +7,11 @@ export default{
                 formDescribe:'',
                 startDate:'',
                 endDate:''   
-            },
+            }
         }
     },
+    // props:[databaseItem],
+
     methods:{
         nextPage(){
             sessionStorage.setItem('inputDataTitle', JSON.stringify(this.firstPage)) //名字叫inputData，存firstPage進去
@@ -25,7 +27,7 @@ export default{
         },
         updateStartTime(){
             let now = new Date()
-            now.setDate(now.getDate() + 2); // 当前日期加上2天
+            now.setDate(now.getDate() + 2); 
 
             let year = now.getFullYear();       
             let month = String(now.getMonth() + 1).padStart(2, '0');   
@@ -34,30 +36,36 @@ export default{
         },
         updateEndTime(){
             let now = new Date()
-            now.setDate(now.getDate() + 7); // 当前日期加上2天
+            now.setDate(now.getDate() + 7); 
 
             let year = now.getFullYear();       
             let month = String(now.getMonth() + 1).padStart(2, '0');   
             let day = String(now.getDate()).padStart(2, '0');
             this.firstPage.endDate = `${year}-${month}-${day}`;
+        },
+        clearTableSession(){
+            sessionStorage.removeItem("inputDataTitle")
         }
     },
     created(){
         this.updateStartTime();
         this.updateEndTime();
 
-  
         let savedData = sessionStorage.getItem('inputDataTitle')
+
         if (savedData){
             this.firstPage = JSON.parse(savedData)  
         }
+        
 
+        window.addEventListener("beforeunload", this.clearTableSession)
     }
     
 }
 </script>
 
 <template>
+    <!-- <h1>{{ databaseItem }}</h1> -->
     <div class="maxArea">
         <div class="inputArea">
             <p>問卷名稱: </p>

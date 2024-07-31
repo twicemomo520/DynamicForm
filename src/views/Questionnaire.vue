@@ -30,6 +30,11 @@ export default{
         if (savedData){
             this.allData = JSON.parse(savedData)
         }
+
+        // let databaseItem = this.$route.params.formId
+        // if (databaseItem){
+        //     this.databaseItem = databaseItem
+        // }
     }
 }
 </script>
@@ -39,7 +44,6 @@ export default{
     <!-- <div class="blankBlock">
 
     </div> -->
-
     <div class="h1Class">
         <h1 v-on:click = "currentView ='QuestionTitle'">問卷題目</h1>
         <h1 v-on:click = "currentView ='QuestionContent'">問卷內容</h1>
@@ -54,11 +58,11 @@ export default{
 
 
     <QuestionContent class="content" v-if="currentView==='QuestionContent'"
-    @changeView="changeView">
+    @changeView="changeView" >
     </QuestionContent>
     
     <QuestionCheck  class="content" v-if="currentView==='QuestionCheck'"
-    @changeView="changeView">
+    @changeView="changeView" >
     </QuestionCheck>
   
 
