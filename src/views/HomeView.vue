@@ -20,10 +20,10 @@
 
 @keyframes spin  {
             0% {
-                transform: rotate(0deg);
+                transform: rotateX(0deg);
             }
             100% {
-                transform: rotate(360deg);
+                transform: rotateX(7200deg);
             }
         }
 @keyframes orbit {
@@ -98,7 +98,7 @@
             border-radius: 55px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             cursor: pointer;
-            animation: spin 5s linear infinite, orbit 0.5s linear infinite;
+            animation: spin 5s linear infinite, orbit 5s linear infinite;
             transform-origin: -50px 50%;
             &:hover{
                 transition: 0.5s;

@@ -2,7 +2,6 @@
 import QuestionTitle from "../components/QuestionTitle.vue"
 import QuestionContent from "../components/QuestionContent.vue"
 import QuestionCheck from "../components/QuestionCheck.vue"
-
 import QuestionHome from "../components/QuestionHome.vue"
 
 export default{
@@ -16,7 +15,9 @@ export default{
         return{
             currentView:"QuestionTitle",
             titleData: null,
-            allData:null
+            allData:null,
+            databaseItem:null,
+            testItem: "哈哈測試",
         }
     },
     methods:{
@@ -31,10 +32,12 @@ export default{
             this.allData = JSON.parse(savedData)
         }
 
-        // let databaseItem = this.$route.params.formId
-        // if (databaseItem){
-        //     this.databaseItem = databaseItem
-        // }
+        const formId = this.$route.query.formId;
+        this.databaseItem = formId ? JSON.parse(formId) : null;
+
+        // this.databaseItem = JSON.parse(formId);
+        // console.log(this.databaseItem)    
+        
     }
 }
 </script>
@@ -44,6 +47,7 @@ export default{
     <!-- <div class="blankBlock">
 
     </div> -->
+    <!-- <h1>測試是{{ databaseItem}}</h1> -->
     <div class="h1Class">
         <h1 v-on:click = "currentView ='QuestionTitle'">問卷題目</h1>
         <h1 v-on:click = "currentView ='QuestionContent'">問卷內容</h1>
@@ -51,18 +55,17 @@ export default{
         <h1 v-on:click = "currentView ='QuestionCheck'">統計</h1>
     </div>
 
-    <h1>{{ allData }}</h1>
     <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'"
-    @changeView="changeView" >
+    @changeView="changeView" :databaseItem="databaseItem" :testItem="testItem">
     </QuestionTitle>
 
 
     <QuestionContent class="content" v-if="currentView==='QuestionContent'"
-    @changeView="changeView" >
+    @changeView="changeView" :databaseItem="databaseItem" :testItem="testItem">
     </QuestionContent>
     
     <QuestionCheck  class="content" v-if="currentView==='QuestionCheck'"
-    @changeView="changeView" >
+    @changeView="changeView" :databaseItem="databaseItem">
     </QuestionCheck>
   
 

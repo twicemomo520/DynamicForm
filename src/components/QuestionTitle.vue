@@ -10,7 +10,13 @@ export default{
             }
         }
     },
-    // props:[databaseItem],
+    props:["databaseItem", "testItem"],
+    
+    // computed: {
+    //     formattedItem() {
+    //         return JSON.parse(JSON.stringify(this.databaseItem));
+    //     }
+    // },
 
     methods:{
         nextPage(){
@@ -50,23 +56,28 @@ export default{
     created(){
         this.updateStartTime();
         this.updateEndTime();
-
         let savedData = sessionStorage.getItem('inputDataTitle')
-
         if (savedData){
             this.firstPage = JSON.parse(savedData)  
         }
-        
+
+        if (this.databaseItem){
+            this.firstPage = this.databaseItem.firstPage
+        }
+ 
+        // this.firstPage = this.databaseItem.firstPage
 
         window.addEventListener("beforeunload", this.clearTableSession)
-    }
+    },
+
     
 }
 </script>
 
 <template>
-    <!-- <h1>{{ databaseItem }}</h1> -->
     <div class="maxArea">
+        <!-- <h1>哈囉{{ testItem }}</h1> -->
+        <!-- <h1>{{ databaseItem}}</h1> -->
         <div class="inputArea">
             <p>問卷名稱: </p>
             <input type="text" class="inputResize" v-model="firstPage.formName" v-bind:style="{width: inputBox(firstPage.formName)[0]+'px', height:inputBox(firstPage.formName)[1]}+'px'"  placeholder="問卷名稱">

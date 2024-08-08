@@ -1,6 +1,7 @@
 ﻿<script>
-import database from "../assets/database.json"
+// import database from "../assets/database.json"
 import axios from 'axios';
+import {useEditStore} from "@/stores/databaseEdit"
 
 export default{
     data(){
@@ -18,9 +19,15 @@ export default{
             
             selectedRows:[],
 
-            isEditing:false
+            isEditing:false,
+
+            databaseEdit:useEditStore().databaseEdit,
+
         }
     },
+
+    props:["databaseItem", "testItem"],
+
     computed:{
         
     },
@@ -33,9 +40,28 @@ export default{
         },
         nextPage(){
             sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
-            this.submitData()
+            if (useEditStore().databaseEdit == false){ 
+                this.submitData()
+                this.$emit("changeView", 'QuestionCheck')
+            }
+            else{
+                this.submitEditData()
+                this.$emit("changeView", 'QuestionCheck')
+            }
 
-            this.$emit("changeView", 'QuestionCheck')
+        },
+        submitEditData(){
+            this.firstPage.firstPage["tableData"] = this.tableData
+
+            axios.post('http://localhost:3000/edit-data', this.firstPage)
+            .then(response => {
+                alert('Data saved successfully!');
+                })
+            .catch(error => {
+                console.error('Failed to save data:', error);
+                });
+            
+            this.clearTableSession()  
         },
         submitData(){
             this.firstPage.firstPage["tableData"] = this.tableData
@@ -115,6 +141,10 @@ export default{
 
 
     created(){
+        if (this.databaseItem){
+            this.tableData = this.databaseItem.firstPage.tableData
+        }
+
         let inputDataTitle = sessionStorage.getItem('inputDataTitle')
         if (inputDataTitle){
             this.firstPage.firstPage = JSON.parse(inputDataTitle)  
@@ -141,8 +171,10 @@ export default{
 
 <template>
     <div class="maxArea">
-        <h1>table資料{{ tableData }}</h1>
-        <h1>第一個page{{ this.firstPage.firstPage }}</h1>
+        <!-- <h1>{{ databaseItem.firstPage.tableData }}</h1> -->
+        <!-- <h1>table資料{{ databaseItem }}</h1> -->
+        <!-- <h1>第一個page{{ this.firstPage.firstPage }}</h1> -->
+        <h1>{{ databaseEdit }}</h1>
         <div class="inputArea1">
             <p>問題: </p>
             <input type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
@@ -198,7 +230,7 @@ export default{
 
 
         <button v-on:click="previousPage">上一頁</button>
-        <button v-on:click="nextPage" >送出</button>
+        <button v-on:click="nextPage" >{{ databaseEdit ? "編輯完成" : "送出" }}</button>
     </div>
 </template>
 

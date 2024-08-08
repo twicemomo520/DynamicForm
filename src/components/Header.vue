@@ -13,6 +13,8 @@ export default{
         <RouterLink class = "routeItem"  to="/">首頁</RouterLink>
         <RouterLink class = "routeItem"  to="/Questionnaire">發問卷</RouterLink>
         <RouterLink class = "routeItem"  to="/QuestionWrite">填問卷</RouterLink>
+        <RouterLink class = "routeItem"  to="/PiniaTest">pinia測試</RouterLink>
+        <RouterLink class = "routeItem"  to="/FuriosaTest">Furiosa測試</RouterLink>
     </div>    
 </template>
 

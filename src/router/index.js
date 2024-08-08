@@ -13,10 +13,11 @@ const router = createRouter({
       path: '/ManageSurvey',
       name: 'ManageSurvey',
       component: () => import('../views/ManageSurvey.vue'),
+
       children:[
           { path: '/Questionnaire', 
             name: 'Questionnaire',
-            component: () => import('../views/Questionnaire.vue')
+            component: () => import('../views/Questionnaire.vue'),
           },
         ]
     },
@@ -27,18 +28,30 @@ const router = createRouter({
       
     },
 
-
-
     {
       path: '/Questionnaire',
       name: 'Questionnaire',
-      component: () => import('../views/Questionnaire.vue')
+      component: () => import('../views/Questionnaire.vue'),
+      beforeEnter:(to, from, next)=>{
+        next()
+      },
     },
     {
       path: '/QuestionWrite',
       name: 'QuestionWrite',
       component: () => import('../views/QuestionWrite.vue')
     },
+    {
+      path: '/PiniaTest',
+      name: 'PiniaTest',
+      component: () => import('../views/PiniaTest.vue')
+    },
+    {
+      path: '/FuriosaTest',
+      name: 'FuriosaTest',
+      component: () => import('../views/FuriosaTest.vue')
+    },
+    
   ]
 })
 

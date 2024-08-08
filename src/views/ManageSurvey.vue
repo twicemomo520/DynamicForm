@@ -1,33 +1,42 @@
 ﻿<script>
-import database from "../assets/database.json"
+// import database from "../assets/database.json"
 import axios from 'axios'
 import moment from 'moment';
+import {useEditStore} from "@/stores/databaseEdit"
+
 
 export default{
     data(){
         return{
-            data:database,
+            data:null,
+            subData:null,
+            currentPage:1,
             selectedIds:[],
-            dataTest:'嗨嗨'
+            dataTest:'嗨嗨',
+            databaseEdit:useEditStore().databaseEdit,
         }
     },
     created() {
         // this.data = database
         this.fetchData();
+        // this.subData = this.data.pages.slice(0,10)
+        
     },
     methods:{
         goToDestination() {
             this.$router.push('/Questionnaire');
         },
-        // goToEditDestination(item, index){
-        //     this.$router.push({name:'Questionnaire', params:{formId:item}});
-            
-        // },
+        goToEditDestination(item, index){
+            this.$router.push({name:'Questionnaire', query:{formId:JSON.stringify(item)}});
+            useEditStore().databaseEdit = true;
+        },
         
         fetchData() {
             axios.get('../src/assets/database.json')  // 替換為實際URL或是路徑
                 .then(response => {
-                this.data = response.data;  // 將獲取的值給surveyData
+                    this.data = response.data  // 將獲取的值給surveyData
+                    this.subData = response.data.pages.slice(0,10);  // 將獲取的值給surveyData
+
                 })
                 .catch(error => {
                 console.error('Error fetching data:', error);  // 錯誤處理
@@ -57,9 +66,6 @@ export default{
 
             }
         },
-        formState(){
-
-        },
         openOrClose(start_Date, end_Date){
   
 
@@ -86,16 +92,30 @@ export default{
                 return "結束"
             }
              
+        },
+        changeTab(index){
+            let start = (index*10 -10)
+            let end = (index*10)
+
+            let subData = this.data.pages.slice(start, end)
+            this.subData = subData     
+            this.currentPage = index    
         }
 
     
     },
-
+    computed:{
+        bottombar(){
+            let number = Math.ceil((this.data.pages.length)/10)
+            return number
+        }
+    }
 }
 </script>
 
 <template>
-    <button type="button" style="font-size:50px ;" v-on="testFunction">測試</button>
+    <!-- <h1>{{ databaseEdit }}</h1> -->
+    <!-- <button type="button" style="font-size:50px ;" v-on="testFunction">測試</button> -->
 
     <div class="full">
         <div class="container">
@@ -136,7 +156,7 @@ export default{
                                     <th>結果</th>
                                 </tr>
                             </thead>
-                            <tbody v-for="(item, index) in data.pages" :key="index" >
+                            <tbody v-for="(item, index) in subData" :key="index" >
                                 <tr>
                                     <td><input type="checkbox" v-model="selectedIds" :value="item.firstPage.id"></td>
                                     <td>{{ item.firstPage.id}}</td>
@@ -146,12 +166,21 @@ export default{
                                     <td>{{ item.firstPage.startDate }}</td>
                                     <td>{{ item.firstPage.endDate }}</td>
                                     <td @click="goToEditDestination(item, index)">編輯問卷</td>
+                                    <!-- <h1>{{ item }}</h1> -->
                                 </tr>
                             </tbody>
                         </table>
-                    
+                    <div class="bottomBar">
+                        <i class="fa-regular fa-circle-left"></i>
+                        <div class="numberBar">
+                            <span v-for="index in bottombar" :key="index" @click="this.changeTab(index)" :class="{ active: currentPage === index }">{{ index }}</span>
+                        </div>
+                        <i class="fa-regular fa-circle-right"></i>
+                    </div>
+
                 </div>
             </div>
+            <!-- <h1>{{ subData }}</h1> -->
             <div class="bottomContainer"></div>
         </div>
     </div>
@@ -166,6 +195,7 @@ export default{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Zen Kaku Gothic New", sans-serif;
 }
 
 .full{
@@ -240,7 +270,7 @@ export default{
         }
         .tableContainer{
             width: 100%;
-            height: 70%;
+            height: 80%;
             background-color: #b68766;
             .content{
                 padding: 4%;
@@ -268,6 +298,43 @@ export default{
             height: 5%;
             background-color: #795334;
 
+        }
+        .bottomBar{
+            width: 100%;
+            height: 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 40px 0 ;
+            .numberBar{
+                .active {
+                    background-color: #795334;
+                    color: white;
+                }
+                span{
+                    text-align: center;    /* 确保文本居中 */
+                    vertical-align: middle; /* 垂直居中，如果在行内显示 */
+                    margin: 0 5px;
+                    font-size: 30px;
+                    cursor: pointer;
+                    transition: 0.3s;
+                    text-align: center;
+                    color: black;
+                    
+                    &:hover{
+                        transform: scale(1.2);
+                        transition: 0.3s;
+                    }
+                }
+            }
+            .fa-regular{
+                font-size: 30px;
+                cursor: pointer;
+                &:hover{
+                        transform: scale(1.2);
+                        transition: 0.3s;
+                    }
+            }
         }
     }
 }
