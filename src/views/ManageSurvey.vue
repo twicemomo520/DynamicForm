@@ -14,13 +14,12 @@ export default{
             selectedIds:[],
             dataTest:'嗨嗨',
             databaseEdit:useEditStore().databaseEdit,
+            currentDeleteId: null,
         }
     },
     created() {
-        // this.data = database
         this.fetchData();
-        // this.subData = this.data.pages.slice(0,10)
-        
+      
     },
     methods:{
         goToDestination() {
@@ -46,10 +45,21 @@ export default{
         deleteSelected(){
             axios.post("http://localhost:3000/delete", {ids: this.selectedIds})
                 .then(response =>{
-                    // this.fetchDeleteData();
-                    this.selectedIds = []
+                    this.selectedIds = [];
+                    this.fetchData();  // 重新抓取資料    
                 })
                 .catch(error => console.error("Error delete data", error));
+            
+        },
+
+        deleteSingleButton(id){
+            axios.post("http://localhost:3000/deleteSingle", {ids: id})
+                .then(response =>{
+                    this.fetchData();  // 重新抓取資料      
+                })
+                .catch(error => console.error("Error delete data", error));
+
+            this.animateButton(event)
         },
         
         fetchDeleteData() {
@@ -66,6 +76,7 @@ export default{
 
             }
         },
+
         openOrClose(start_Date, end_Date){
   
 
@@ -93,6 +104,7 @@ export default{
             }
              
         },
+
         changeTab(index){
             let start = (index*10 -10)
             let end = (index*10)
@@ -100,15 +112,32 @@ export default{
             let subData = this.data.pages.slice(start, end)
             this.subData = subData     
             this.currentPage = index    
-        }
+        },
 
+        animateButton(event){
+            const target = event.target;
+            target.classList.remove('animate');
+
+            // Force reflow to restart animation
+            void target.offsetWidth;
+
+            target.classList.add('animate');
+            setTimeout(() => {
+                target.classList.remove('animate');
+            }, 700);
+        }
     
     },
     computed:{
         bottombar(){
             let number = Math.ceil((this.data.pages.length)/10)
             return number
-        }
+        },
+        bottombar(){
+            let number = Math.ceil((this.data.pages.length)/10)
+            return number
+        },
+
     }
 }
 </script>
@@ -144,6 +173,7 @@ export default{
             <div class="tableContainer">
                 <div class="content">
                     <h1>{{ selectedIds }}</h1>
+                    <!-- <h1>{{ currentDeleteId }}</h1> -->
                         <table>
                             <thead>
                                 <tr>
@@ -156,9 +186,13 @@ export default{
                                     <th>結果</th>
                                 </tr>
                             </thead>
-                            <tbody v-for="(item, index) in subData" :key="index" >
-                                <tr>
-                                    <td><input type="checkbox" v-model="selectedIds" :value="item.firstPage.id"></td>
+                            <tbody>
+                                <tr v-for="(item, index) in subData" :key="index" 
+                                @mouseover="currentDeleteId = index" @mouseout="currentDeleteId = null" :class="{ 'hovered': currentDeleteId == index }">
+                                    <td class="deleteItem"><input type="checkbox" v-model="selectedIds" :value="item.firstPage.id">
+                                        <button class = "bubbly-button" type="button"  v-show="currentDeleteId == index" @click="deleteSingleButton(String(item.firstPage.id))">刪除</button>
+                                    </td>
+              
                                     <td>{{ item.firstPage.id}}</td>
                                     <td>{{ item.firstPage.formName}}</td>
                                     <td>{{ openOrClose(item.firstPage.startDate, item.firstPage.endDate)}}</td>
@@ -191,6 +225,11 @@ export default{
 
 <style scoped lang="scss">
 
+$fuschia: #ff0081;
+$button-bg: $fuschia;
+$button-text-color: #fff;
+$baby-blue: #f8faff;
+
 *{
     margin: 0;
     padding: 0;
@@ -204,6 +243,7 @@ export default{
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #212121;
     
     .container{
         width: 60%;
@@ -276,8 +316,13 @@ export default{
                 padding: 4%;
                 table{
                     width: 100%;
+                    table-layout: fixed; /* 固定表格布局 */
                     border-collapse: collapse; /* 邊框合併 */
                     border-spacing: 0; /* 中間沒有空隙 */
+                    tr.hovered {
+                        background-color: #e2bc9b;
+                        color: white;
+                        }
                     th, td{
                         border: 1px solid black;
                         padding: 8px;
@@ -287,6 +332,114 @@ export default{
                         cursor: pointer;
                         color: rgb(53, 2, 134);
                         
+                    }
+
+                    .bubbly-button{
+                        font-family: 'Helvetica', 'Arial', sans-serif;
+                        display: inline-block;
+                        font-size: 1em;
+                        padding: 1em 2em;
+                        -webkit-appearance: none;
+                        appearance: none;
+                        background-color: $button-bg;
+                        color: $button-text-color;
+                        border-radius: 4px;
+                        border: none;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        position: relative;
+                        transition: transform ease-in 0.1s, box-shadow ease-in 0.25s;
+                        box-shadow: 0 2px 25px rgba(255, 0, 130, 0.5);
+                        
+                        &:focus {
+                            outline: 0;
+                        }
+                        
+                        &:before, &:after{
+                            position: absolute;
+                            content: '';
+                            display: block;
+                            width: 140%;
+                            height: 100%;
+                            left: -20%;
+                            z-index: -1000;
+                            transition: all ease-in-out 0.5s;
+                            background-repeat: no-repeat;
+                        }
+                        
+                        &:before{
+                            display: none;
+                            top: -75%;
+                            background-image:  
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle,  transparent 20%, $button-bg 20%, transparent 30%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%), 
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%);
+                        background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%;
+                        //background-position: 0% 80%, -5% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 85% 30%;
+                        }
+                        
+                        &:after{
+                            display: none;
+                            bottom: -75%;
+                            background-image:  
+                            radial-gradient(circle, $button-bg 20%, transparent 20%), 
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%),
+                            radial-gradient(circle, $button-bg 20%, transparent 20%);
+                        background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 10% 10%, 20% 20%;
+                        //background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+                        }
+                        
+                        &:active{
+                            transform: scale(0.9);
+                            background-color: darken($button-bg, 5%);
+                            box-shadow: 0 2px 25px rgba(255, 0, 130, 0.2);
+                        }
+                        
+                        &.animate{
+                            &:before{
+                            display: block;
+                            animation: topBubbles ease-in-out 0.75s forwards;
+                            }
+                            &:after{
+                            display: block;
+                            animation: bottomBubbles ease-in-out 0.75s forwards;
+                            }
+                        }
+                        }
+
+
+                        @keyframes topBubbles {
+                        0%{
+                            background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+                        }
+                            50% {
+                            background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 90% 30%;}
+                        100% {
+                            background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%, 50% 40%, 65% 10%, 90% 20%;
+                        background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+                        }
+                        }
+
+                        @keyframes bottomBubbles {
+                        0%{
+                            background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%, 70% -10%, 70% 0%;
+                        }
+                        50% {
+                            background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%, 105% 0%;}
+                        100% {
+                            background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%, 110% 10%;
+                        background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+                        }    
                     }
                     
                 }

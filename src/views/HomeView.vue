@@ -71,7 +71,8 @@
 
             &:hover{
                 transition: 0.5s;
-                transform: rotateX(720deg) scale(1.4);
+                transform: scale(1.2);
+                // transform: rotateX(720deg) scale(1.4);
 
             }
 

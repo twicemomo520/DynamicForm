@@ -119,6 +119,32 @@ app.post('/delete', (req, res)=>{
     })
 })
 
+app.post('/deleteSingle', (req, res)=>{
+    console.log("Received delete request with body:", req.body);
+    const deletedIds = req.body.ids;
+    const filePath = '../src/assets/database.json';
+    fs.readFile(filePath, (err, data)=>{
+        console.log("讀取檔案")
+        if (err) {
+            return res.status(500).send("Error reading data file")
+        };
+       
+        let dataFile = JSON.parse(data);
+        dataFile.pages = dataFile.pages.filter(page => page.firstPage.id !== deletedIds);       
+        console.log("刪除",deletedIds)
+
+        dataFile.pages.forEach(function(item, index){
+            item.firstPage.id = index+1
+            console.log(`索引 ${index} 更新的 id: ${item.firstPage.id}`)
+        });
+        fs.writeFile(filePath, JSON.stringify(dataFile), (err)=>{
+            if (err) {
+                return res.status(500).send("Failed to write data")} 
+            res.send("data remove successfully")    
+        })
+    })
+})
+
 
 
 const PORT = 3000;

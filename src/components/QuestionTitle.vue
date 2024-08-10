@@ -80,13 +80,14 @@ export default{
         <!-- <h1>{{ databaseItem}}</h1> -->
         <div class="inputArea">
             <p>問卷名稱: </p>
-            <input type="text" class="inputResize" v-model="firstPage.formName" v-bind:style="{width: inputBox(firstPage.formName)[0]+'px', height:inputBox(firstPage.formName)[1]}+'px'"  placeholder="問卷名稱">
-            <!-- <h1>{{ firstPage }}</h1> -->
+            <textarea type="text" class="inputResize" v-model="firstPage.formName" v-bind:style="{width: inputBox(firstPage.formName)[0]+'px', height:inputBox(firstPage.formName)[1]}+'px'"  placeholder="問卷名稱">
+            </textarea>
         </div>  
         
         <div class="inputArea">
             <p>問卷說明: </p>
-            <input type="text" class="inputResize" v-model="firstPage.formDescribe" placeholder="問卷說明">
+            <textarea type="text" class="inputResize" v-model="firstPage.formDescribe" placeholder="問卷說明">
+            </textarea> 
         </div>
 
         <div class="inputArea">
@@ -137,7 +138,7 @@ export default{
             font-weight: 400;
         }
 
-        input{
+        input, textarea{
             width: 150px;
             height:30px;
             flex-wrap: wrap;
@@ -157,6 +158,7 @@ export default{
             width: 500px;
             height: 100px;
             margin-top: 1%;
+
         }
 
     }

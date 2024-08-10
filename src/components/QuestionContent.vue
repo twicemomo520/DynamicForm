@@ -2,8 +2,10 @@
 // import database from "../assets/database.json"
 import axios from 'axios';
 import {useEditStore} from "@/stores/databaseEdit"
-
 export default{
+    components:{
+
+    },
     data(){
         return{
             firstPage: {"firstPage":null},
@@ -60,8 +62,9 @@ export default{
             .catch(error => {
                 console.error('Failed to save data:', error);
                 });
-            
-            this.clearTableSession()  
+
+            sessionStorage.setItem("inputTitleContent", JSON.stringify(this.firstPage))
+            // this.clearTableSession()  
         },
         submitData(){
             this.firstPage.firstPage["tableData"] = this.tableData
@@ -73,8 +76,9 @@ export default{
             .catch(error => {
                 console.error('Failed to save data:', error);
                 });
-            
-            this.clearTableSession()    
+
+            sessionStorage.setItem("inputTitleContent", JSON.stringify(this.firstPage))
+            // this.clearTableSession()    
         },
         pushToTable(){
             if (!this.isEditing){
@@ -177,10 +181,12 @@ export default{
         <h1>{{ databaseEdit }}</h1>
         <div class="inputArea1">
             <p>問題: </p>
-            <input type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
+            <textarea type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
+            </textarea>
             <select v-model="secondPage.formSingleOrMulti">
                 <option value="單選" >單選題</option>
                 <option value="多選" >多選題</option>
+                <option value="詳述" >詳述題</option>
             </select>
             <!-- <h1>{{ tableData }}</h1> -->
             <input type="checkbox" id = "mustCheck" v-model="secondPage.formMustCheckbox">
@@ -194,7 +200,8 @@ export default{
             <p>選項: </p>
             <div class="littleArea">
                 <p>(多個答案請以; 分隔)</p>
-                <input type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
+                <textarea type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
+                </textarea>
                 <button type="button" class="addButton" v-on:click="pushToTable">{{isEditing ? '編輯完成' : '加入'}}</button>
             </div>
         </div>
@@ -245,7 +252,7 @@ export default{
 .maxArea{
     
     width: 60%;
-    height: 100dvh;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -262,13 +269,14 @@ export default{
             font-weight: 400;
         }
 
-        input{
+        input,textarea{
             width: 150px;
             height:30px;
             flex-wrap: wrap;
             background-color:#ffe3e3;
             color:#737373;
             border: 1px solid rgb(207, 111, 131);
+            
             &:focus {
                 outline: none; /* 移除默認的focus邊框 */
                 border: 1px solid rgb(207, 111, 131);
@@ -316,13 +324,14 @@ export default{
             font-weight: 400;
         }
 
-        input{
+        input,textarea{
             width: 150px;
             height:30px;
             flex-wrap: wrap;
             background-color:#ffe3e3;
             color:#737373;
             border: 1px solid rgb(207, 111, 131);
+
             &:focus {
                 outline: none; /* 移除默認的focus邊框 */
                 border: 1px solid rgb(207, 111, 131);
@@ -372,7 +381,6 @@ export default{
             th, td{
                 border: 1px solid black;
                 padding: 8px;
-                text-align: left;
             }
         .tableEdit{
             cursor:pointer;
