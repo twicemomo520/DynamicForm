@@ -7,7 +7,8 @@ export default{
                 formDescribe:'',
                 startDate:'',
                 endDate:''   
-            }
+            },
+
         }
     },
     props:["databaseItem", "testItem"],
@@ -115,36 +116,38 @@ export default{
 }
 
 .maxArea{    
+
     width: 60%;
-    height: 100dvh;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    // backdrop-filter: blur(5px);
-    // box-shadow: 0 25px 45px rgba(0,0,0,0.1);
-    // border: 1px solid rgba(255,255,255,0.5);
-    // border-right: 1px solid rgba(255,255,255,0.2);
-    // border-bottom: 1px solid rgba(255,255,255,0.2);
-
+    border-radius: 12px;
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+    padding: 4% 2%;
+    margin-bottom: 2%;
 
     .inputArea{
         width: 100%;
+        height: auto;
         display: flex;
         align-items: center;
         justify-content: left;
         p{
-            padding: 20px;
             font-weight: 400;
         }
 
         input, textarea{
             width: 150px;
             height:30px;
+            margin-left: 20px;  
             flex-wrap: wrap;
             background-color:#ffe3e3;
             color:#737373;
             border: 1px solid rgb(207, 111, 131);
+            border-radius: 6px;
+            padding: 10px;
             &:focus {
                 outline: none; /* 移除默認的focus邊框 */
                 border: 1px solid rgb(207, 111, 131);

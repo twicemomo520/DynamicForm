@@ -11,20 +11,20 @@ export default{
         }
     },
     components:{
-        CheckboxInitial,
-        CehckboxChecked,
-        CheckboxCheckedDisabled,
-        CehckboxDisabled,
+        // CheckboxInitial,
+        // CehckboxChecked,
+        // CheckboxCheckedDisabled,
+        // CehckboxDisabled,
         Furiosa,
     }
 }
 </script>
 
 <template>
-    <CheckboxInitial/>
+    <!-- <CheckboxInitial/>
     <CehckboxChecked/>
     <CheckboxCheckedDisabled/>
-    <CehckboxDisabled/>
+    <CehckboxDisabled/> -->
     <Furiosa/>
 </template>
 

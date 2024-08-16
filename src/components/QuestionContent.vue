@@ -1,7 +1,5 @@
 ﻿<script>
 // import database from "../assets/database.json"
-import axios from 'axios';
-import {useEditStore} from "@/stores/databaseEdit"
 export default{
     components:{
 
@@ -12,9 +10,10 @@ export default{
             secondPage:{
                 id: '',
                 formQuestion:'',
-                formSingleOrMulti:'',
+                formSingleOrMulti:'單選',
                 formMustCheckbox:false,
-                formOption:'',
+                formOptionTemp:"",
+                formOption:[],
             },
 
             tableData:[],
@@ -23,7 +22,7 @@ export default{
 
             isEditing:false,
 
-            databaseEdit:useEditStore().databaseEdit,
+            currentDeleteId:null,
 
         }
     },
@@ -35,50 +34,28 @@ export default{
     },
     methods:{
         previousPage(){
-            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
-            sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
-            
+            this.saveData()
             this.$emit("changeView", 'QuestionTitle')
         },
         nextPage(){
+            this.saveData()
+            this.$emit("changeView", 'QuestionCheck')
+
+        },
+        saveData(){
+            this.firstPage.firstPage["tableData"] = this.tableData
             sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
-            if (useEditStore().databaseEdit == false){ 
-                this.submitData()
-                this.$emit("changeView", 'QuestionCheck')
-            }
-            else{
-                this.submitEditData()
-                this.$emit("changeView", 'QuestionCheck')
-            }
-
-        },
-        submitEditData(){
-            this.firstPage.firstPage["tableData"] = this.tableData
-
-            axios.post('http://localhost:3000/edit-data', this.firstPage)
-            .then(response => {
-                alert('Data saved successfully!');
-                })
-            .catch(error => {
-                console.error('Failed to save data:', error);
-                });
-
+            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
             sessionStorage.setItem("inputTitleContent", JSON.stringify(this.firstPage))
-            // this.clearTableSession()  
         },
-        submitData(){
-            this.firstPage.firstPage["tableData"] = this.tableData
 
-            axios.post('http://localhost:3000/save-data', this.firstPage)
-            .then(response => {
-                alert('Data saved successfully!');
-                })
-            .catch(error => {
-                console.error('Failed to save data:', error);
-                });
-
-            sessionStorage.setItem("inputTitleContent", JSON.stringify(this.firstPage))
-            // this.clearTableSession()    
+        pushToOption(){
+            let data = this.secondPage.formOptionTemp
+            this.secondPage.formOption.push(data)
+            this.secondPage.formOptionTemp = ""
+        },
+        deleteOption(index){
+            this.secondPage.formOption.splice(index, 1)
         },
         pushToTable(){
             if (!this.isEditing){
@@ -91,7 +68,8 @@ export default{
                     formQuestion: '',
                     formSingleOrMulti: '',
                     formMustCheckbox: false,
-                    formOption: '',
+                    formOptionTemp:"",
+                    formOption: [],
                     };
                 }     
             else{
@@ -107,19 +85,12 @@ export default{
                     formQuestion: '',
                     formSingleOrMulti: '',
                     formMustCheckbox: false,
-                    formOption: '',
+                    formOptionTemp:"",
+                    formOption: [],
                     };
 
             }              
         },
-        clearTableSession() {
-            // 清空 sessionStorage
-            sessionStorage.removeItem('tableData');
-            sessionStorage.removeItem('inputDataTitle');
-            sessionStorage.removeItem('inputDataContent');
-
-        },
-        
         deleteSelected(){
             // 删除選中的行
             this.tableData = this.tableData.filter((item, index) => !this.selectedRows.includes(index));
@@ -181,30 +152,70 @@ export default{
         <!-- <h1>第一個page{{ this.firstPage.firstPage }}</h1> -->
         <h1>{{ databaseEdit }}</h1>
         <div class="inputArea1">
-            <p>問題: </p>
+            <p>新增問題: </p>
             <textarea type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
             </textarea>
             <select v-model="secondPage.formSingleOrMulti">
                 <option value="單選" >單選題</option>
                 <option value="多選" >多選題</option>
+                <option value="選單" >選單題</option>
                 <option value="詳述" >詳述題</option>
             </select>
-            <!-- <h1>{{ tableData }}</h1> -->
             <input type="checkbox" id = "mustCheck" v-model="secondPage.formMustCheckbox">
             <label for="mustCheck">必填</label>
-            <!-- <h1>{{this.isEditing}}</h1>
-            <h1>{{this.secondPage}}</h1>            
-            <h1>{{this.tableData}}</h1> -->
+
         </div>  
 
-        <div class="inputArea2" >
-            <p>選項: </p>
+        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '單選'">
+            <div class="optionInput">
+                <p>輸入選項:</p>
+                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <button @click="pushToOption" >新增選項</button>
+            </div>
+            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+                <i class="fa-regular fa-circle-dot" style="color: gray;"></i>
+                <!-- <i class="fa-regular fa-circle" style="color: gray;"></i> -->
+                <p>{{ item }}</p>
+                <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" ></i>
+            </div>
+        </div>
+        
+        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '多選'">
+            <div class="optionInput">
+                <p>輸入選項:</p>
+                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <button @click="pushToOption">新增選項</button>
+            </div>
+            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+                <i class="fa-regular fa-square-check" style="color: gray;"></i>
+                <p>{{ item }}</p>
+                <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" style="color: blue;"></i>
+            </div>
+        </div>
+
+        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '選單'">
+            <div class="optionInput">
+                <p>輸入選項:</p>
+                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <button @click="pushToOption">新增選項</button>
+            </div>
+            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+                <i class="fa-solid fa-circle" style="color: gray; font-size: 10px;"></i>
+                <p>{{ item }}</p>
+                <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" style="color: blue;"></i>
+            </div>
+        </div>
+        
+        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '詳述'">
             <div class="littleArea">
-                <p>(多個答案請以; 分隔)</p>
+                <p>(請詳述你的答案)</p>
                 <textarea type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
                 </textarea>
-                <button type="button" class="addButton" v-on:click="pushToTable">{{isEditing ? '編輯完成' : '加入'}}</button>
             </div>
+        </div>
+        <div class="buttonArea" >
+            <button type="button" v-on:click="pushToTable">
+            {{isEditing ? '編輯完成' : '加入問題'}}</button>
         </div>
 
         <div class="inputArea3">
@@ -238,7 +249,7 @@ export default{
 
 
         <button v-on:click="previousPage">上一頁</button>
-        <button v-on:click="nextPage" >{{ databaseEdit ? "編輯完成" : "送出" }}</button>
+        <button v-on:click="nextPage" >預覽</button>
     </div>
 </template>
 
@@ -254,10 +265,18 @@ export default{
     
     width: 60%;
     height: auto;
+    padding: 4% 2%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    border-radius: 6px;
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+
+    input,textarea{
+        border-radius: 6px;
+    }
+
 
     .inputArea1{
         width: 100%;
@@ -266,13 +285,14 @@ export default{
         justify-content: left;
 
         p{
-            padding: 20px;
+            // padding: 20px;
             font-weight: 400;
         }
 
         input,textarea{
-            width: 150px;
+            width: 300px;
             height:30px;
+            margin-left: 20px;
             flex-wrap: wrap;
             background-color:#ffe3e3;
             color:#737373;
@@ -307,8 +327,45 @@ export default{
     .inputArea2{
         width: 100%;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: left;
         justify-content: left;
+
+        .optionInput{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+        }
+
+        .optionItem{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            margin-bottom: 20px;
+            .fa-x{
+                font-size: 25px;
+                cursor: pointer;
+                color: #e93030;
+            }
+            p{
+                margin: 0 10px;
+                width: 500px;
+                height: 25px;
+                position: relative;
+                &:before{
+                    content: '';
+                    position: absolute;
+                    background-color: gray;
+                    width: 100%;
+                    height: 0.5px;
+                    left: 0;
+                    bottom: 0;
+                }
+            }
+
+        }
         .littleArea{
             display: flex;
             flex-direction: column;
@@ -321,22 +378,22 @@ export default{
         }
 
         p{
-            padding: 20px;
+          
             font-weight: 400;
         }
 
         input,textarea{
             width: 150px;
             height:30px;
+            margin-left: 20px;
             flex-wrap: wrap;
             background-color:#ffe3e3;
             color:#737373;
             border: 1px solid rgb(207, 111, 131);
+            border-radius: 6px;
+            outline: none;
+            resize:none;
 
-            &:focus {
-                outline: none; /* 移除默認的focus邊框 */
-                border: 1px solid rgb(207, 111, 131);
-            }
             &:nth-child(0){
                 width: 500px;
 
@@ -355,10 +412,22 @@ export default{
             height: 100px;
             margin-top: 1%;
         }
+        button{
+            float: left;
+        }
 
     }
 
-
+    .buttonArea{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        margin: 0;
+        button{
+            margin: 40px 0;
+        }
+    }
     .inputArea3{
         width: 100%;
         display: flex;
@@ -398,6 +467,7 @@ export default{
     button{
         width: 100px;
         height: 50px;
+        margin: 20px;
         cursor: pointer;
         border-radius: 15px;
         border:none;

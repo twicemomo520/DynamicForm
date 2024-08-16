@@ -130,12 +130,12 @@ app.post('/deleteSingle', (req, res)=>{
         };
        
         let dataFile = JSON.parse(data);
-        dataFile.pages = dataFile.pages.filter(page => page.firstPage.id !== deletedIds);       
+        dataFile.pages = dataFile.pages.filter(page => String(page.firstPage.id) !== String(deletedIds));       
         console.log("刪除",deletedIds)
 
         dataFile.pages.forEach(function(item, index){
             item.firstPage.id = index+1
-            console.log(`索引 ${index} 更新的 id: ${item.firstPage.id}`)
+            // console.log(`索引 ${index} 更新的 id: ${item.firstPage.id}`)
         });
         fs.writeFile(filePath, JSON.stringify(dataFile), (err)=>{
             if (err) {

@@ -1,11 +1,14 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
+import mouseEffect from './components/mouseEffect/mouseEffect.vue';
+
 </script>
 
 <template>
   
   <div class="outerArea">
+    <mouseEffect />
     <div class="header">
       <Header />
     </div>
@@ -18,23 +21,22 @@ import Header from './components/Header.vue'
 <style scoped lang = "scss">
 .outerArea{
   width:100dvw;
+  height: 100dvh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  // background: 
-  //       linear-gradient(rgba(255,255,255, 0.7), rgba(0,0,0, 0.7)), /* 半透明背景颜色 */
-  //       url("./assets/maplestoryPort.png");
   background-repeat: no-repeat;      
   background-size: cover;
  
 
   
   .header{
-  width:100%;
-  height:10dvh;
+    width:15%;
+    height: 100%;
   }
   .content{
+    width:85%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;

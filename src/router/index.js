@@ -51,6 +51,21 @@ const router = createRouter({
       name: 'FuriosaTest',
       component: () => import('../views/FuriosaTest.vue')
     },
+    {
+      path: '/PatternTest',
+      name: 'PatternTest',
+      component: () => import('../views/PatternTest.vue')
+    },
+    {
+      path: '/MouseEffectTest',
+      name: 'MouseEffectTest',
+      component: () => import('../views/MouseEffectTest.vue')
+    },
+    {
+      path: '/BeautifulTableTest',
+      name: 'BeautifulTableTest',
+      component: () => import('../views/BeautifulTableTest.vue')
+    },
     
   ]
 })

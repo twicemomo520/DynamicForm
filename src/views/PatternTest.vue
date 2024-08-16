@@ -1,5 +1,5 @@
 ﻿<script>
-    import InfiteTicker from "../components/InfiniteTicker.vue"
+    import Pattern from "../components/pattern/Pattern.vue"
     export default{
         data(){
             return{
@@ -7,15 +7,18 @@
             }
         },
         components:{
-            InfiteTicker
+            Pattern
         }
     }
 </script>
 
 <template>
-    <InfiteTicker></InfiteTicker>
+    <Pattern></Pattern>
+
+    <div>
+        安安
+    </div>
 </template>
 
-<style>
-
+<style scoped lang="scss">
 </style>

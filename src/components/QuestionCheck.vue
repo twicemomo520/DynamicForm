@@ -1,15 +1,73 @@
 ﻿<script>
+import {useEditStore} from "@/stores/databaseEdit"
+import axios from 'axios';
 
 export default{
     data(){
         return{
             firstPage:null,
+            databaseEdit:useEditStore().databaseEdit,
         }
     },
     methods:{
         previousPage(){
             this.$emit("changeView", 'QuestionContent')
         },
+        publish(){
+            if (useEditStore().databaseEdit == false){ 
+                this.submitData()
+            }
+            else{
+                this.submitEditData()
+            }
+        },
+
+        submitEditData(){
+            axios.post('http://localhost:3000/edit-data', this.firstPage)
+            .then(response => {
+                alert('Data saved successfully!');
+                })
+            .then(()=>{
+                this.clearTableSession()  
+                useEditStore().databaseEdit = false
+            })    
+            .then(()=>{
+                this.$router.push('/');
+            })
+            .catch(error => {
+                console.error('Failed to save data:', error);
+                });
+            
+        },
+
+        submitData(){
+            axios.post('http://localhost:3000/save-data', this.firstPage)
+            .then(response => {
+                alert('Data saved successfully!');
+                })
+            .then(()=>{
+                this.clearTableSession()    
+            })    
+            .then(()=>{
+                this.$router.push('/');   
+            })    
+            .catch(error => {
+                console.error('Failed to save data:', error);
+                });
+
+            
+            
+        },
+
+        clearTableSession() {
+            // 清空 sessionStorage
+            sessionStorage.removeItem('tableData');
+            sessionStorage.removeItem('inputDataTitle');
+            sessionStorage.removeItem('inputDataContent');
+            sessionStorage.removeItem('inputTitleContent');
+
+        },
+
         formOption(formOption){
             formOption
         }
@@ -28,7 +86,6 @@ export default{
 <template>
     
     <div class="maxArea">
-        <!-- <h1>{{ firstPage }}</h1> -->
 
         <h1>{{firstPage.firstPage.formName}}</h1>
         <div class="formDescribe">{{firstPage.firstPage.formDescribe}}</div>
@@ -53,14 +110,37 @@ export default{
         <div class="formTable" v-for="item in firstPage.firstPage.tableData">
             <div class="formQuestion">
                 <p>{{ item.formQuestion }}</p>
+                <p>{{ item.formMustCheckbox ? "*" : ""}}</p>
                 <p>({{ item.formSingleOrMulti }})</p>
-                <p>({{ item.formMustCheckbox ? "必填" : "選填"}})</p>
             </div>
-            <p>{{ item.formOption }}</p>
+
+            <div class="formSingle" v-if="item.formSingleOrMulti=='單選'" v-for="option in item.formOption">
+                <input type="radio" :id="option" name="option" :value="option">
+                <label :for="option">{{ option }}</label>
+            </div>
+
+            <div class="formMulti" v-if="item.formSingleOrMulti=='多選'" v-for="option in item.formOption">
+                <input type="checkbox" :id="option" name="option" :value="option">
+                <label :for="option">{{ option }}</label>
+            </div>
+
+            <div class="formSelect" v-if="item.formSingleOrMulti=='選單'">
+                <select name="" id="">
+                    <option v-for="option in item.formOption" :key="option" :value="option">{{option}}</option>
+                </select>
+            </div>
+
+            <div class="formInput" v-if="item.formSingleOrMulti=='詳述'">
+                <textarea type="text">
+                </textarea>
+            </div>
+
         </div>
 
-        <button v-on:click="previousPage">上一頁</button>
-
+        <div class="submitButton">
+            <button v-on:click="previousPage">上一頁</button>
+            <button v-on:click="publish">{{ databaseEdit ? "確認修改" : "確認發佈" }}</button>
+        </div>
     </div>
 </template>
 
@@ -73,20 +153,25 @@ export default{
     font-family: "Zen Kaku Gothic New", sans-serif;
 }
 .maxArea{
-    padding: 5% 5%;
+    
     width: 60%;
     height: auto;
+    padding: 4% 2%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: start;
     flex-wrap: wrap;
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+
     .formDescribe{
         margin-top: 20px;
     }
 
     .personalData{
         width: 100%;
+
+
         .personalDetail{
             width: 100%;
             height: 100px;
@@ -99,20 +184,25 @@ export default{
             }
             p{
                 width: 50px; 
+                height:20px;
                 font-weight: 400;
             }
             input{
                 width: 300px;
                 height:30px;
-                margin-left: 5%;
+                margin-left: 2%;
                 flex-wrap: wrap;
-                background-color:#ffe3e3;
+                background-color:#f8d5d5;
                 color:#737373;
-                border: 1px solid rgb(207, 111, 131);
+                border-left: none; /* 去除左边框 */
+                border-right: none; /* 去除右边框 */
+                border-top: none; /* 去除上边框 */
+                border-bottom: 1px solid rgb(207, 111, 131);
+                outline: none;
                 
                 &:focus {
                     outline: none; /* 移除默認的focus邊框 */
-                    border: 1px solid rgb(207, 111, 131);
+      
                 }
 
             }
@@ -120,9 +210,53 @@ export default{
             
         }
     }
-    button{
+
+    .formTable{
+        width: 100%;
+        margin-bottom: 40px;
+        .formQuestion{
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            margin-bottom: 5px;
+            
+            p{
+                &:nth-child(2){
+                    color: red;
+                }
+                &:last-child{
+                    margin-left: 10px; //為p標籤增加左邊間距
+                }
+                
+            }
+        }
+        input, select{
+            border-radius: 6px;
+            border: 1px solid #F7F7F5;
+        }
+
+        textarea{
+            width: 500px;
+            height:200px;
+            flex-wrap: wrap;
+            background-color:#ffe3e3;
+            color:#737373;
+            border: 1px solid rgb(207, 111, 131);
+            outline: none;
+            resize:none;
+        }
+        
+    }
+
+    .submitButton{
+        display: flex;
+        align-items: center;
+        justify-content: start;
+
+        button{
         width: 100px;
         height: 50px;
+        margin: 20px;
         cursor: pointer;
         border-radius: 15px;
         border:none;
@@ -133,26 +267,7 @@ export default{
             background-color: rgb(215, 231, 124);
             color: #023e8a;
         }
-
-
     }
-    .formTable{
-        width: 100%;
-        margin-bottom: 40px;
-        .formQuestion{
-            display: flex;
-            align-items: center;
-            justify-content: start;
-            
-            p{
-                &:first-child{
-                    margin-left: 0; /* 为其他 <p> 标签添加左边距 */
-                }
-
-                margin-left: 10px; /* 为其他 <p> 标签添加左边距 */
-            }
-
-        }
     }
 }
 </style>

@@ -43,31 +43,27 @@ export default{
 </script>
 
 <template>
+    <div class="container">
+        <div class="h1Class">
+            <h1 v-on:click = "currentView ='QuestionTitle'" :class="{'clickStyle': currentView=='QuestionTitle'}">問卷題目</h1>
+            <h1 v-on:click = "currentView ='QuestionContent'" :class="{'clickStyle': currentView=='QuestionContent'}">問卷內容</h1>
+            <h1 v-on:click = "currentView ='QuestionCheck'" :class="{'clickStyle': currentView=='QuestionCheck'}">問卷確認</h1>
+            <h1 v-on:click = "currentView ='QuestionCheck'" >統計</h1>
+        </div>
 
-    <!-- <div class="blankBlock">
+        <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'" 
+        @changeView="changeView" :databaseItem="databaseItem" >
+        </QuestionTitle>
 
-    </div> -->
-    <!-- <h1>測試是{{ databaseItem}}</h1> -->
-    <div class="h1Class">
-        <h1 v-on:click = "currentView ='QuestionTitle'">問卷題目</h1>
-        <h1 v-on:click = "currentView ='QuestionContent'">問卷內容</h1>
-        <h1 v-on:click = "currentView ='QuestionCheck'">問卷確認</h1>
-        <h1 v-on:click = "currentView ='QuestionCheck'">統計</h1>
+
+        <QuestionContent class="content" v-if="currentView==='QuestionContent'" :class="{'clickStyle': currentView=='QuestionTitle'}"
+        @changeView="changeView" :databaseItem="databaseItem" >
+        </QuestionContent>
+        
+        <QuestionCheck  class="content" v-if="currentView==='QuestionCheck'" :class="{'clickStyle': currentView=='QuestionTitle'}"
+        @changeView="changeView" :databaseItem="databaseItem">
+        </QuestionCheck>
     </div>
-
-    <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'"
-    @changeView="changeView" :databaseItem="databaseItem" :testItem="testItem">
-    </QuestionTitle>
-
-
-    <QuestionContent class="content" v-if="currentView==='QuestionContent'"
-    @changeView="changeView" :databaseItem="databaseItem" :testItem="testItem">
-    </QuestionContent>
-    
-    <QuestionCheck  class="content" v-if="currentView==='QuestionCheck'"
-    @changeView="changeView" :databaseItem="databaseItem">
-    </QuestionCheck>
-  
 
 </template>
 
@@ -101,43 +97,68 @@ $pinkcolor10:rgb(255, 200, 212);
     font-family: "Zen Kaku Gothic New", sans-serif;
     
 }
-.content{
-    background-color: $pinkcolor1;
-}
-.h1Class{
-    width: 30%;
-    height: 10dvh;
+.container{
+    width: 100%;
+    height: 100%;
     display: flex;
-    padding-top: 15px;
-    align-content: center;
+    flex-direction: column;
+    align-items: center;
     justify-content: flex-start;
-    margin-right: 30%;
-    margin-top: 2%;
-    h1{
-        background: $blackcolor10;
-        color: black;
-        width: 120px;
-        font-weight: 500;
-        font-size: 20px;
-        padding-right: 15px;
-        padding-left: 15px;
+
+    --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+    --min-radius: 20;
+    --max-radius: 100;
+    --num-circles: 30;
+    --min-opacity: 10;
+    --max-opacity: 50;
+    --seed: 42;
+    background-image: paint(circles);
+
+    .content{
+        background-color: $pinkcolor1;
+        }
+
+    .h1Class{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         padding-top: 15px;
-        cursor: pointer;
-        box-shadow: 0 8px 32px 0 rgba(244, 218, 218, 0.2);
-        backdrop-filter: blur( 10px );
-        -webkit-backdrop-filter: blur( 4px );
-        border-radius: 10px;
-        border-top-right-radius: 30px;
+        margin: 2% 0;
         
+        .clickStyle{
+            background-color: $blackcolor7;
+            color: white;
+            transform: translateY(-10px); 
+            transition: transform 0.3s ease; 
+        } 
 
-        &:hover{
-            background-color: rgb(215, 231, 124);
-            color: #023e8a;
+        h1{ 
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            background: $blackcolor10;
+            color: black;
+            width: 120px;
+            height: 50px;
+            font-weight: 500;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px 0 rgba(244, 218, 218, 0.2);
+            backdrop-filter: blur( 10px );
+            -webkit-backdrop-filter: blur( 4px );
+            border-radius: 10px;
+            
+            &:hover{
+                background-color: $blackcolor7;
+                color: white;
+            }
+
+            &:active{
+                background-color: black;
+            }
         }
 
-        &:active{
-            background-color: black;
-        }
     }
 
 }
