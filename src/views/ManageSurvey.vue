@@ -15,7 +15,7 @@ export default{
             dataTest:'嗨嗨',
             databaseEdit:useEditStore().databaseEdit,
             currentDeleteId: null,
-            currenStateFilter:""
+            currentStateFilter:""
         }
     },
     async created() {
@@ -150,16 +150,31 @@ export default{
           console.error('Your browser does not support Paint Worklet.');
         }
       },
-      currenStateFilter(state){
-        if (state == "未開放"){
-            this.currenStateFilter = "未開放";
-            this.subData
+
+      stateFilterChange(state){
+        
+        if (state == '未開放'){
+            this.currentStateFilter = "未開放";
+            let newSubData = this.data.pages.filter(item => {
+                return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "未開放";   
+            });
+            this.subData = newSubData.slice(0,10);
         }
-        if (state == "開放中"){
-            this.currenStateFilter = "開放中";
+
+        if (state == '進行中'){
+            this.currentStateFilter = "進行中";
+            let newSubData = this.data.pages.filter(item => {
+                return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "進行中";   
+            });
+            this.subData = newSubData.slice(0,10);
         }
-        if (state == "結束"){
-            this.currenStateFilter = "結束";
+
+        if (state == '結束'){
+            this.currentStateFilter = "結束";
+            let newSubData = this.data.pages.filter(item => {
+                return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "結束";   
+            });
+            this.subData = newSubData.slice(0,10);
         }
       },
     
@@ -174,10 +189,11 @@ export default{
 </script>
 
 <template>
-    <!-- <h1>{{ data}}</h1> -->
-    <!-- <h1>{{ subData[0] }}</h1> -->
+    <!-- <h1>{{ currentStateFilter }}你好</h1> -->
     <div class="full">
         <div class="container">
+            <!-- <h1>{{ data.pages }}</h1> -->
+            <!-- <h1>{{ subData }}</h1> -->
             <div class="topContainer">
                 <div class="content">
                     <div class="topCotent">
@@ -199,9 +215,9 @@ export default{
                     <i class="fa-solid fa-plus"  @click="goToDestination"></i>
                 </div>    
                 <div class="filter">
-                    <p @click="currenStateFilter('未開放')">未開放</p>
-                    <p @click="currenStateFilter('進行中')">進行中</p>
-                    <p @click="currenStateFilter('結束')">結束</p>
+                    <p @click="stateFilterChange('未開放')" :class="{'before':currentStateFilter === '未開放'}">未開放</p>
+                    <p @click="stateFilterChange('進行中')" :class="{'ing':currentStateFilter === '進行中'}">進行中</p>
+                    <p @click="stateFilterChange('結束')" :class="{'after':currentStateFilter === '結束'}">結束</p>
                 </div>    
                 <div class="selectArea">
                     <select name="" id="">
@@ -223,6 +239,7 @@ export default{
                                     <th>開始時間</th>
                                     <th>結束時間</th>
                                     <th>編輯</th>
+                                    <th>統計結果</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -248,7 +265,7 @@ export default{
                                     <td class="startDate">{{ item.firstPage.startDate }}</td>
                                     <td class="endDate">{{ item.firstPage.endDate }}</td>
                                     <td @click="goToEditDestination(item, index)">編輯問卷</td>
-                                    <!-- <h1>{{ item }}</h1> -->
+                                    <td @click="goToEditDestination(item, index)">編輯問卷</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -395,7 +412,7 @@ $baby-blue: #f8faff;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: #f0dfcc;
+            background-color: #f0ddcbc6;
             padding: 0 10px;
             
             .content{
@@ -412,6 +429,7 @@ $baby-blue: #f8faff;
                 align-items: center;
                 justify-content: center;
                 margin-left: 500px;
+
                 p{
                     color:black;
                     border-radius: $radius;
@@ -419,31 +437,51 @@ $baby-blue: #f8faff;
                     font-weight: 500;
                     text-align: center;
                     padding: 0.2rem 1rem;
-                    margin: 0 5px;
+                    margin: 0 2px;
                     cursor: pointer;
                     &:hover{
                         transition: all 0.2s ease-in;
-                        transform:scale(1.1);
                         box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
                     }
                 }
-                p:nth-child(1){
-                    background-color: $clr-pending;
+                :nth-child(1){
                     color: $clr-pending-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
-
+                    border-bottom: 1px solid $clr-pending-font;
+                    background-color: $clr-pending;
                 }
-                p:nth-child(2){
-                    background-color: $clr-paid;
+                :nth-child(2){
                     color: $clr-paid-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
-
+                    border-bottom: 1px solid $clr-paid-font;
+                    background-color: $clr-paid;
                 }
-                p:nth-child(3){
-                    background-color: $clr-unpaid;
+                :nth-child(3){
                     color: $clr-unpaid-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
+                    border-bottom: 1px solid $clr-unpaid-font;
+                    background-color: $clr-unpaid;
+                }
 
+                @keyframes anim-shadow{
+                    50% {
+                        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), 10px 10px 8px rgba(0, 0, 0, 0.2); // 与静态样式一致
+                    }
+                }
+                .before {
+                    border-bottom: 3px solid $clr-pending-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
+                    margin-bottom: 15px;
+                    animation:anim-shadow .5s forwards;
+                }
+                .ing {
+                    border-bottom: 3px solid $clr-paid-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
+                    margin-bottom: 15px;
+                    animation:anim-shadow .5s forwards;
+                }
+                .after {
+                    border-bottom: 3px solid $clr-unpaid-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
+                    margin-bottom: 15px;
+                    animation:anim-shadow .5s forwards;
                 }
 
             }
@@ -458,19 +496,18 @@ $baby-blue: #f8faff;
             width: 100%;
             height: 70%;
             .content{
-                // padding: 4%;
                 table{
                     width: 100%;
-                    table-layout: fixed; /* 固定表格布局 */
-                    border-collapse: collapse; /* 邊框合併 */
-                    border-spacing: 0; /* 中間沒有空隙 */
+                    table-layout: fixed; 
+                    border-collapse: collapse;
+                    border-spacing: 0;
                     background-color: white;
                     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
-                    // box-shadow: 0 5px 10px $clr-gray300;
 
                     .status{
                         .before{
                             border-radius: $radius;
+                            border-bottom: 1px solid $clr-pending-font;
                             padding: 0.2rem 1rem;
                             text-align: center;
                             background-color: $clr-pending;
@@ -478,6 +515,7 @@ $baby-blue: #f8faff;
                         }
                         .ing{
                             border-radius: $radius;
+                            border-bottom: 1px solid $clr-paid-font;
                             padding: 0.2rem 1rem;
                             text-align: center;
                             background-color: $clr-paid;
@@ -485,6 +523,7 @@ $baby-blue: #f8faff;
                         }
                         .after{
                             border-radius: $radius;
+                            border-bottom: 1px solid $clr-unpaid-font;
                             padding: 0.2rem 1rem;
                             text-align: center;
                             background-color: $clr-unpaid;
@@ -496,8 +535,7 @@ $baby-blue: #f8faff;
                     }
                     tr{
                         background-color: white;
-
-
+                        border-radius: 12px;
                     }
                     tr:nth-child(even) {
                         background-color: $clr-gray200;
@@ -528,112 +566,111 @@ $baby-blue: #f8faff;
 
                     tr.hovered {
                         transform: scale(1.02);
-                        // transform: scale3d(1.02, 1.02, 10);
                         transition: all 0.2s ease-in;
                         box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
 
                     }
-                    .bubbly-button{
-                        font-family: 'Helvetica', 'Arial', sans-serif;
-                        display: inline-block;
-                        font-size: 14px;
-                        padding: 1em 2em;
-                        background-color: $button-bg;
-                        color: $button-text-color;
-                        border: none;
-                        border-radius: 12px;
-                        cursor: pointer;
-                        position: relative;
-                        transition: transform ease-in 0.1s, box-shadow ease-in 0.25s;
-                        box-shadow: 0 2px 25px rgba(255, 0, 130, 0.5);
+                    // .bubbly-button{
+                    //     font-family: 'Helvetica', 'Arial', sans-serif;
+                    //     display: inline-block;
+                    //     font-size: 14px;
+                    //     padding: 1em 2em;
+                    //     background-color: $button-bg;
+                    //     color: $button-text-color;
+                    //     border: none;
+                    //     border-radius: 12px;
+                    //     cursor: pointer;
+                    //     position: relative;
+                    //     transition: transform ease-in 0.1s, box-shadow ease-in 0.25s;
+                    //     box-shadow: 0 2px 25px rgba(255, 0, 130, 0.5);
                         
-                        &:focus {
-                            outline: 0;
-                        }
+                    //     &:focus {
+                    //         outline: 0;
+                    //     }
                         
-                        &:before, &:after{
-                            position: absolute;
-                            content: '';
-                            display: block;
-                            width: 140%;
-                            height: 100%;
-                            left: -20%;
-                            z-index: -1000;
-                            transition: all ease-in-out 0.5s;
-                            background-repeat: no-repeat;
-                        }
+                    //     &:before, &:after{
+                    //         position: absolute;
+                    //         content: '';
+                    //         display: block;
+                    //         width: 140%;
+                    //         height: 100%;
+                    //         left: -20%;
+                    //         z-index: -1000;
+                    //         transition: all ease-in-out 0.5s;
+                    //         background-repeat: no-repeat;
+                    //     }
                         
-                        &:before{
-                            display: none;
-                            top: -75%;
-                            background-image:  
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle,  transparent 20%, $button-bg 20%, transparent 30%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%), 
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%);
-                        background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%;
-                        //background-position: 0% 80%, -5% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 85% 30%;
-                        }
+                    //     &:before{
+                    //         display: none;
+                    //         top: -75%;
+                    //         background-image:  
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle,  transparent 20%, $button-bg 20%, transparent 30%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%), 
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%);
+                    //     background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%;
+                    //     //background-position: 0% 80%, -5% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 85% 30%;
+                    //     }
                         
-                        &:after{
-                            display: none;
-                            bottom: -75%;
-                            background-image:  
-                            radial-gradient(circle, $button-bg 20%, transparent 20%), 
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%),
-                            radial-gradient(circle, $button-bg 20%, transparent 20%);
-                        background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 10% 10%, 20% 20%;
-                        //background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
-                        }
+                    //     &:after{
+                    //         display: none;
+                    //         bottom: -75%;
+                    //         background-image:  
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%), 
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle,  transparent 10%, $button-bg 15%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%),
+                    //         radial-gradient(circle, $button-bg 20%, transparent 20%);
+                    //     background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 10% 10%, 20% 20%;
+                    //     //background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+                    //     }
                         
-                        &:active{
-                            transform: scale(0.9);
-                            background-color: darken($button-bg, 5%);
-                            box-shadow: 0 2px 25px rgba(255, 0, 130, 0.2);
-                        }
+                    //     &:active{
+                    //         transform: scale(0.9);
+                    //         background-color: darken($button-bg, 5%);
+                    //         box-shadow: 0 2px 25px rgba(255, 0, 130, 0.2);
+                    //     }
                         
-                        &.animate{
-                            &:before{
-                            display: block;
-                            animation: topBubbles ease-in-out 0.75s forwards;
-                            }
-                            &:after{
-                            display: block;
-                            animation: bottomBubbles ease-in-out 0.75s forwards;
-                            }
-                        }
-                        }
-                        @keyframes topBubbles {
-                        0%{
-                            background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
-                        }
-                            50% {
-                            background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 90% 30%;}
-                        100% {
-                            background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%, 50% 40%, 65% 10%, 90% 20%;
-                        background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
-                        }
-                        }
-                        @keyframes bottomBubbles {
-                        0%{
-                            background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%, 70% -10%, 70% 0%;
-                        }
-                        50% {
-                            background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%, 105% 0%;}
-                        100% {
-                            background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%, 110% 10%;
-                        background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
-                        }    
-                    }
+                    //     &.animate{
+                    //         &:before{
+                    //         display: block;
+                    //         animation: topBubbles ease-in-out 0.75s forwards;
+                    //         }
+                    //         &:after{
+                    //         display: block;
+                    //         animation: bottomBubbles ease-in-out 0.75s forwards;
+                    //         }
+                    //     }
+                    //     }
+                    //     @keyframes topBubbles {
+                    //     0%{
+                    //         background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%;
+                    //     }
+                    //         50% {
+                    //         background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 90% 30%;}
+                    //     100% {
+                    //         background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%, 50% 40%, 65% 10%, 90% 20%;
+                    //     background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+                    //     }
+                    //     }
+                    //     @keyframes bottomBubbles {
+                    //     0%{
+                    //         background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%, 70% -10%, 70% 0%;
+                    //     }
+                    //     50% {
+                    //         background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%, 105% 0%;}
+                    //     100% {
+                    //         background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%, 110% 10%;
+                    //     background-size: 0% 0%, 0% 0%,  0% 0%,  0% 0%,  0% 0%,  0% 0%;
+                    //     }    
+                    // }
                     
                 }
             }

@@ -17,7 +17,7 @@ class Ball {
       // size: this.getRandomInt(30, 40),
       x: mouse.x + this.getRandomInt(10, 30),
       y: mouse.y + this.getRandomInt(10, 30),
-      size: this.getRandomInt(10, 10),
+      size: this.getRandomInt(7, 7),
     };
     this.end = {
       // x: this.start.x + this.getRandomInt(-300, 300),
@@ -31,7 +31,7 @@ class Ball {
     this.size = this.start.size;
     this.style = rgb[this.getRandomInt(0, rgb.length - 1)];
     this.time = 0;
-    this.ttl = 120;
+    this.ttl = 40;
   }
 
   draw(ctx) {
@@ -151,7 +151,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
+  height: 100dvh;
 }
 
 canvas {
