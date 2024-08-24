@@ -1,5 +1,4 @@
 ﻿<script>
-// import database from "../assets/database.json"
 import axios from 'axios'
 import moment from 'moment';
 import {useEditStore} from "@/stores/databaseEdit"
@@ -15,17 +14,27 @@ export default{
             dataTest:'嗨嗨',
             databaseEdit:useEditStore().databaseEdit,
             currentDeleteId: null,
-            currentStateFilter:""
+            currentStateFilter:"",
+            selectedRowIndex :[],
         }
     },
-    async created() {
-        await this.fetchFirstData();
+
+    created() {
+        this.fetchFirstData();
       
     },
+    
     mounted(){
         this.loadCircleWorklet()
+        this.$refs.options.style.visibility = 'hidden';
+        document.addEventListener('click', this.handleClickOutside);
     },
+    beforeDestroy() {
+    // 在组件销毁前移除事件监听器，防止内存泄漏
+    document.removeEventListener('click', this.handleClickOutside);
+  },
     methods:{
+
         goToDestination() {
             this.$router.push('/Questionnaire');
         },
@@ -47,7 +56,7 @@ export default{
         },
         
         deleteSelected(){
-            axios.post("http://localhost:3000/delete", {ids: this.selectedIds})
+            axios.post("http://localhost:3000/delete", {ids: this.selectedRowIndex})
                 .then(response =>{
                     this.selectedIds = [];
                     this.fetchData();  // 重新抓取資料    
@@ -196,17 +205,87 @@ export default{
             
         }
       },
-    //   sortItem(event){
-    //     let value = event.target.value
-    //     if (value == 'idS')
-    //   },
-    
-    },
-    computed:{
-        bottombar(){
-            let number = Math.ceil((this.data.pages.length)/10);
-            return number
+
+      sortItem(value){
+        
+        if (value == '編號( 小到大 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return a.firstPage.id - b.firstPage.id
+            })
+        }
+        if (value == '編號( 大到小 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return b.firstPage.id - a.firstPage.id
+            })
+        }
+        if (value == '開始日期( 最近 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return new Date(a.firstPage.startDate) - new Date(b.firstPage.startDate)
+            })
+        }
+        if (value == '開始日期( 最遠 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return new Date(b.firstPage.startDate) - new Date(a.firstPage.startDate)
+            })
+        }
+        if (value == '結束日期( 最近 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return new Date(a.firstPage.endDate) - new Date(b.firstPage.endDate)
+            })
+        }
+        if (value == '結束日期( 最遠 )'){
+            this.subData = this.subData.sort((a,b)=>{
+                return new Date(b.firstPage.endDate) - new Date(a.firstPage.endDate)
+            })
+        }
+        this.toggleSelectMenu()
+        this.$refs.selectOptionText.textContent = value
+
+      },
+
+      toggleSelectMenu(){
+        const content = this.$refs.options
+        console.log(content.style.visibility)
+        content.style.visibility = (content.style.visibility == 'hidden' ? 'visible' : 'hidden');
+
+        const selectBtnBorder = this.$refs.selectBtnBorder;
+        // const selectOptionText = selectBtnBorder.querySelector('span')
+        if (content.style.visibility == 'visible'){
+            // selectBtnBorder.style.background = '#f2f2f2'
+            selectBtnBorder.style.background = 'rgba(0,0,0,0.7)'
+            selectBtnBorder.style.color = 'white'
+        }
+        else{
+            selectBtnBorder.style.background = 'white';
+            selectBtnBorder.style.color = 'black';
+        }
+      },
+
+      handleClickOutside(event){
+            if (this.$refs.options.style.visibility == 'visible' 
+            && !this.$refs.options.contains(event.target) 
+            && !this.$refs.selectBtnBorder.contains(event.target)){
+
+                this.$refs.options.style.visibility = 'hidden'
+                this.$refs.selectBtnBorder.style.background = 'white';
+                this.$refs.selectBtnBorder.style.color = 'black';
+            }
         },
+
+      selectDeleteRow(index){
+        const indexArray = this.selectedRowIndex.indexOf(index)
+        if(indexArray > -1){
+            this.selectedRowIndex.splice(indexArray, 1)
+        }
+        else{
+            this.selectedRowIndex.push(index)
+        }
+      }
+  },
+  computed:{
+        generateBottombar(){
+            return Math.ceil(this.data.pages.length / 10);
+        }
     }
 }
 </script>
@@ -217,6 +296,7 @@ export default{
         <div class="container">
             <!-- <h1>{{ data.pages }}</h1> -->
             <!-- <h1>{{ subData }}</h1> -->
+            <!-- <h1>{{ selectedRowIndex }}</h1> -->
             <div class="topContainer">
                 <div class="content">
                     <div class="topCotent">
@@ -242,16 +322,39 @@ export default{
                     <p @click="stateFilterChange('進行中')" :class="{'ing':currentStateFilter === '進行中'}">進行中</p>
                     <p @click="stateFilterChange('結束')" :class="{'after':currentStateFilter === '結束'}">結束</p>
                 </div>    
-                <div class="selectArea">
-                    <span>排序</span>
-                    <select name="" id="" >
-                        <option value="idAsc">編號( 最小 )</option>
-                        <option value="idDesc">編號( 最大 )</option>
-                        <option value="dateStartAsc">開始日期( 最近 )</option>
-                        <option value="dateStartDesc">開始日期( 最遠 )</option>
-                        <option value="dateEndAsc">結束日期( 最近 )</option>
-                        <option value="dateEndDesc">結束日期( 最遠 )</option>
-                    </select>
+
+                <div class="selectMenu">
+                    <div class="selectBtn" ref="selectBtnBorder" @click="toggleSelectMenu">
+                        <span ref="selectOptionText">Select option</span>
+                        <i class="bx bx-chevron-down" :class="{'bx bx-chevron-up': toggleSelectMenu == true}"></i>
+                    </div>
+
+                    <ul ref="options" class="options">
+                        <li class="option" @click="sortItem('編號( 小到大 )')">
+                            <i class='bx bx-sort-up'></i>
+                            <span class="option-text">編號( 小到大 )</span>
+                        </li>
+                        <li class="option" @click="sortItem('編號( 大到小 )')">
+                            <i class='bx bx-sort-down' ></i>
+                            <span class="option-text">編號( 大到小 )</span>
+                        </li>
+                        <li class="option" @click="sortItem('開始日期( 最近 )')">
+                            <i class='bx bx-calendar'></i>
+                            <span class="option-text">開始日期( 最近 )</span>
+                        </li>
+                        <li class="option" @click="sortItem('開始日期( 最遠 )')">
+                            <i class='bx bx-calendar'></i>
+                            <span class="option-text">開始日期( 最遠 )</span>
+                        </li>
+                        <li class="option" @click="sortItem('結束日期( 最近 )')">
+                            <i class='bx bx-calendar'></i>
+                            <span class="option-text">結束日期( 最近 )</span>
+                        </li>
+                        <li class="option" @click="sortItem('結束日期( 最遠 )')">
+                            <i class='bx bx-calendar'></i>
+                            <span class="option-text">結束日期( 最遠 )</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <div class="tableContainer">
@@ -271,10 +374,13 @@ export default{
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index) in subData" :key="index" 
-                                @mouseover="currentDeleteId = index" @mouseout="currentDeleteId = null" :class="{ 'hovered': currentDeleteId == index }">
-                                    <td class="deleteTd">
-                                        <input type="checkbox" v-model="selectedIds" :value="item.firstPage.id">
-                                        <button class = "bubbly-button" type="button"  v-show="currentDeleteId == index" @click="deleteSingleButton(String(item.firstPage.id))">刪除</button>
+                                @mouseover="currentDeleteId = index" @mouseout="currentDeleteId = null" 
+                                :class="{ 'hovered': currentDeleteId == index, 'selected': selectedRowIndex.includes(index)}" @click="selectDeleteRow(index)">
+                                    
+                                    <td class="deleteId">
+                                        <!-- <input type="checkbox" v-model="selectedIds" :value="item.firstPage.id"> -->
+                                        <i class='bx bx-check' v-show="selectedRowIndex.includes(index)" ></i>
+                                        <i class='bx bx-trash bx-tada' v-show="currentDeleteId == index" @click="deleteSingleButton(String(item.firstPage.id))"></i>
                                     </td>
               
                                     <td class="id">{{ item.firstPage.id}}</td>
@@ -299,7 +405,9 @@ export default{
                     <div class="bottomBar">
                         <i class="fa-regular fa-circle-left"></i>
                         <div class="numberBar">
-                            <span v-for="index in bottombar" :key="index" @click="this.changeTab(index)" :class="{ active: currentPage === index }">{{ index }}</span>
+                            <span v-for="index in generateBottombar" :key="index" @click="changeTab(index)" :class="{ active: currentPage === index }">
+                                {{ index }}
+                            </span>
                         </div>
                         <i class="fa-regular fa-circle-right"></i>
                     </div>
@@ -353,26 +461,26 @@ $baby-blue: #f8faff;
 .full{
     width: 100%;
     height: 100%;
+    overflow: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #212121;
     
 
-    --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
-    --min-radius: 20;
-    --max-radius: 100;
-    --num-circles: 30;
-    --min-opacity: 10;
-    --max-opacity: 50;
-    --seed: 42;
-    background-image: paint(circles);
+    // --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+    // --min-radius: 20;
+    // --max-radius: 100;
+    // --num-circles: 30;
+    // --min-opacity: 10;
+    // --max-opacity: 50;
+    // --seed: 42;
+    // background-image: paint(circles);
     
     .container{
         width: 100%;
         height: 100%;
         padding: 5% 10%;
-
         .topContainer{
             width: 100%;
             height: 20%;
@@ -402,8 +510,14 @@ $baby-blue: #f8faff;
 
                     input{
                         width: 60%;
+                        height: 30px;
+                        font-size: 18px;
                         outline: none;
                         margin-left: 20px;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 0 10px;
+                        box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
                     }
                 }
                 .bottomContent{
@@ -414,21 +528,35 @@ $baby-blue: #f8faff;
                     margin: 10px 0;
                     input{
                         width: 20%;
+                        height: 25px;
+                        font-size: 15px;
                         outline: none;
                         margin-left: 20px;
-
+                        border: none;
+                        border-radius: 12px;
+                        padding: 10px;
+                        box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
                     }
                     #to{
                         padding-left: 20px;
                     }
                     button{
-                        width: 60px;
-                        height: 30px;
-                        font-size: 15px;
+                        width: 80px;
+                        height: 40px;
+                        font-size: 20px;
                         margin-left: 55px;
+                        border-radius: 20px;
+                        border: none;
+                        border-bottom: 1px solid #aa6a21;
+                        background: linear-gradient(90deg, #f8fca888, #f5c1858e);
+                        color: #aa6a21;
+                        box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
+                        cursor: pointer;
+                        &:active{
+                            padding-top: 2px;
+                            box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                        }
                     }
-
-
                 }
             }
         
@@ -436,11 +564,14 @@ $baby-blue: #f8faff;
         .cdContainer{
             width: 100%;
             height: 10%;
+            padding: 0 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             background-color: #f0ddcb;
-            padding: 0 10px;
+            border-radius: 20px;
+            margin: 5px 0;
+            box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
             
             .content{
                 padding: 20px;
@@ -455,8 +586,7 @@ $baby-blue: #f8faff;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-left: 500px;
-
+                margin-left: 50px;
                 p{
                     color:black;
                     border-radius: $radius;
@@ -473,18 +603,21 @@ $baby-blue: #f8faff;
                 }
                 :nth-child(1){
                     color: $clr-pending-font;
-                    border-bottom: 1px solid $clr-pending-font;
                     background-color: $clr-pending;
+                    border-bottom: 4px solid $clr-pending-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2)
                 }
                 :nth-child(2){
                     color: $clr-paid-font;
-                    border-bottom: 1px solid $clr-paid-font;
                     background-color: $clr-paid;
+                    border-bottom: 4px solid $clr-paid-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2)
                 }
                 :nth-child(3){
                     color: $clr-unpaid-font;
-                    border-bottom: 1px solid $clr-unpaid-font;
                     background-color: $clr-unpaid;
+                    border-bottom: 4px solid $clr-unpaid-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2)
                 }
 
                 @keyframes anim-shadow{
@@ -493,21 +626,24 @@ $baby-blue: #f8faff;
                     }
                 }
                 .before {
-                    border-bottom: 3px solid $clr-pending-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
-                    margin-bottom: 15px;
+                    border-bottom: 1px solid $clr-pending-font;
+                    margin-bottom: 0px;
+                    box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                    margin-top: 10px;
                     animation:anim-shadow .5s forwards;
                 }
                 .ing {
-                    border-bottom: 3px solid $clr-paid-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
-                    margin-bottom: 15px;
+                    border-bottom: 1px solid $clr-paid-font;
+                    margin-bottom: 0px;
+                    box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                    margin-top: 10px;
                     animation:anim-shadow .5s forwards;
                 }
                 .after {
-                    border-bottom: 3px solid $clr-unpaid-font;
-                    box-shadow: 2px 2px 12px rgba(0,0,0,0.2), 10px 10px 8px rgba(0,0,0,0.2);
-                    margin-bottom: 15px;
+                    border-bottom: 1px solid $clr-unpaid-font;
+                    margin-bottom: 0px;
+                    box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                    margin-top: 10px;
                     animation:anim-shadow .5s forwards;
                 }
 
@@ -515,6 +651,55 @@ $baby-blue: #f8faff;
             .selectArea{
                 select{
                     font-size: 15px;
+                    border: none;
+                    border-radius: 8px;
+                    margin: 0 5px;
+                    option{
+                        border: none;
+                    }
+                }
+            }
+            .selectMenu{
+                position: relative;
+
+                .selectBtn{
+                    width: 200px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #fff;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+                    padding: 10px;
+                    margin: 5px 0;
+                }
+                .options{
+                    width: 200px;
+                    position: absolute;
+                    padding: 10px;
+                    background: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+                    .option{
+                        height: 30px;
+                        margin:10px 0;
+                        padding: 0 10px;
+                        display: flex;
+                        align-items: center;
+                        cursor: pointer;
+                        &:hover{
+                            background: #f2f2f2;
+                            border-radius: 8px;
+                        }
+                        i{
+                            font-size: 25px;
+                            margin: 0 10px 0 0;
+                        }
+                        span{
+                            font-size: 16px;
+                        }
+                    }
                 }
             }
 
@@ -530,6 +715,24 @@ $baby-blue: #f8faff;
                     border-spacing: 0;
                     background-color: white;
                     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+                    .deleteId{
+                        // display:flex;
+                        // align-items:center;
+                        // justify-content:flex-start;
+                        margin-left:10px;
+                        i{
+                            cursor:pointer;
+                            font-size:25px;
+                            margin-left:20px;
+                            border:1px solid black;
+                            border-radius:8px;
+                            box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+                            &:hover{
+                                color:red;
+                                border:1px solid red;
+                            }
+                        }
+                    }
 
                     .status{
                         .before{
@@ -559,6 +762,7 @@ $baby-blue: #f8faff;
                     }
                     thead{
                         box-shadow: 0 5px 10px $clr-gray300;
+                        // box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
                     }
                     tr{
                         background-color: white;
@@ -579,7 +783,6 @@ $baby-blue: #f8faff;
                     } 
                       
                     td{
-                        // border: 1px solid black;
                         padding: 10px 10px;
                         text-align: left;
                         letter-spacing: 0.1rem;
@@ -594,6 +797,12 @@ $baby-blue: #f8faff;
                     tr.hovered {
                         transition: all 0.2s ease-in;
                         box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
+                    }
+                    tr.selected {
+                        // background:  #c3c9ee; 
+                        background:  #ced6fd; 
+                        box-shadow: 2px 2px 12px rgba(0,0,0,0.5), -1px -1px 8px rgba(0,0,0,0.2);
+                        // border-bottom: 2px solid rgba(0, 0, 255, 0.54);
                     }
                     
                 }
@@ -612,24 +821,30 @@ $baby-blue: #f8faff;
             display: flex;
             align-items: center;
             justify-content: space-around;
-            margin: 40px 0 ;
+            margin: 30px 0;
             .numberBar{
+                display: flex;
                 .active {
+                    border-radius: 10px;
                     background-color: #795334;
                     color: white;
                 }
-                span{
-                    text-align: center;    /* 确保文本居中 */
-                    vertical-align: middle; /* 垂直居中，如果在行内显示 */
-                    margin: 0 5px;
+                span{          
+                    display: block; // 为了让内容居中
+                    align-items: center;
+                    justify-content: center;
+                    width: 40px ; 
+                    height: 40px ; 
                     font-size: 30px;
                     cursor: pointer;
                     transition: 0.3s;
                     text-align: center;
+                    line-height: 40px;
                     color: black;
                     
                     &:hover{
-                        transform: scale(1.2);
+                        border-radius: 10px;
+                        background: #7953347d;
                         transition: 0.3s;
                     }
                 }

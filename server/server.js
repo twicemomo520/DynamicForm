@@ -61,7 +61,6 @@ app.post('/save-data', (req, res) => {
     });
 });
 
-
 app.post('/edit-data', (req, res) => {
     const newData = req.body;
     const filePath = "../src/assets/database.json"; 
@@ -151,3 +150,4 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+

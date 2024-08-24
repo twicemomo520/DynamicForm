@@ -35,8 +35,6 @@ export default{
         const formId = this.$route.query.formId;
         this.databaseItem = formId ? JSON.parse(formId) : null;
 
-        // this.databaseItem = JSON.parse(formId);
-        // console.log(this.databaseItem)    
         
     }
 }
@@ -100,22 +98,29 @@ $pinkcolor10:rgb(255, 200, 212);
 .container{
     width: 100%;
     height: 100%;
+    overflow: auto; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
 
-    --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
-    --min-radius: 20;
-    --max-radius: 100;
-    --num-circles: 30;
-    --min-opacity: 10;
-    --max-opacity: 50;
-    --seed: 42;
-    background-image: paint(circles);
+    // --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+    // --min-radius: 20;
+    // --max-radius: 100;
+    // --num-circles: 30;
+    // --min-opacity: 10;
+    // --max-opacity: 50;
+    // --seed: 42;
+    // background-image: paint(circles);
 
     .content{
-        background-color: $pinkcolor1;
+        background-color: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        background-image: linear-gradient(
+            180deg,
+            rgba(255,255,255,0.8),
+            );
+        border-radius:20px;    
         }
 
     .h1Class{

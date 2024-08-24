@@ -53,9 +53,7 @@ export default{
             })    
             .catch(error => {
                 console.error('Failed to save data:', error);
-                });
-
-            
+                }); 
             
         },
 
@@ -86,7 +84,7 @@ export default{
 <template>
     
     <div class="maxArea">
-
+        <h1>是否編輯中{{ databaseEdit }}</h1>
         <h1>{{firstPage.firstPage.formName}}</h1>
         <div class="formDescribe">{{firstPage.firstPage.formDescribe}}</div>
         <div class="personalData">
@@ -171,13 +169,12 @@ export default{
     .personalData{
         width: 100%;
 
-
         .personalDetail{
             width: 100%;
             height: 100px;
             display: flex;
             align-items: center;
-            justify-content: start;
+            justify-content: center;
             margin-bottom: -40px;
             &:last-child{
                 margin-bottom: 0;

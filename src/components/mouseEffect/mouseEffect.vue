@@ -17,7 +17,7 @@ class Ball {
       // size: this.getRandomInt(30, 40),
       x: mouse.x + this.getRandomInt(10, 30),
       y: mouse.y + this.getRandomInt(10, 30),
-      size: this.getRandomInt(7, 7),
+      size: this.getRandomInt(2, 2),
     };
     this.end = {
       // x: this.start.x + this.getRandomInt(-300, 300),
@@ -31,7 +31,7 @@ class Ball {
     this.size = this.start.size;
     this.style = rgb[this.getRandomInt(0, rgb.length - 1)];
     this.time = 0;
-    this.ttl = 40;
+    this.ttl = 30;
   }
 
   draw(ctx) {
@@ -81,6 +81,8 @@ export default {
         // "#2a324b",
         // "#161d34",
         // "#fff0c2",
+
+
         "#f9fbff",
         "#FF477E",
         "#FF5C8A",
@@ -91,6 +93,17 @@ export default {
         "#F9BEC7",
         "#F7CAD0",
         "#FAE0E4",
+
+
+        // "#6930c3",
+        // "#5e60ce",
+        // "#5390d9",
+        // "#4ea8de",
+        // "#48bfe3",
+        // "#56cfe1",
+        // "#64dfdf",
+        // "#72efdd",
+        // "#80ffdb",
       ],
       ctx: null,
     };
@@ -162,6 +175,6 @@ canvas {
   height: 100%;
   background-color: transparent; /* 確保畫布背景透明 */
   pointer-events: none; /* 使畫布不攔截鼠標事件 */
-  z-index: 1; /* 確保畫布在其他內容下面 */
+  z-index: 1; 
 }
 </style>

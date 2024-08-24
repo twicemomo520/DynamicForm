@@ -1,5 +1,4 @@
 ﻿<script>
-// import database from "../assets/database.json"
 export default{
     components:{
 
@@ -134,9 +133,7 @@ export default{
         if (tableData){
             this.tableData = JSON.parse(tableData)
         }
-
-
-
+        
         window.addEventListener('beforeunload', this.clearTableSession);
 
 
@@ -150,10 +147,11 @@ export default{
         <!-- <h1>{{ databaseItem.firstPage.tableData }}</h1> -->
         <!-- <h1>table資料{{ databaseItem }}</h1> -->
         <!-- <h1>第一個page{{ this.firstPage.firstPage }}</h1> -->
+        <h1>是否編輯中{{ databaseEdit }}</h1>
         <h1>{{ databaseEdit }}</h1>
         <div class="inputArea1">
             <p>新增問題: </p>
-            <textarea type="text"  v-model="secondPage.formQuestion" placeholder="請輸入問題">
+            <textarea type="text" class="inputTextArea inputTextArea-center" v-model="secondPage.formQuestion" placeholder="請輸入問題">
             </textarea>
             <select v-model="secondPage.formSingleOrMulti">
                 <option value="單選" >單選題</option>
@@ -170,11 +168,11 @@ export default{
             <div class="optionInput">
                 <p>輸入選項:</p>
                 <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <i class='bx bx-image-add'></i>
                 <button @click="pushToOption" >新增選項</button>
             </div>
             <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
                 <i class="fa-regular fa-circle-dot" style="color: gray;"></i>
-                <!-- <i class="fa-regular fa-circle" style="color: gray;"></i> -->
                 <p>{{ item }}</p>
                 <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" ></i>
             </div>
@@ -285,8 +283,8 @@ export default{
         justify-content: left;
 
         p{
-            // padding: 20px;
-            font-weight: 400;
+            font-size: 20px;
+            font-weight: 700;
         }
 
         input,textarea{
@@ -300,10 +298,9 @@ export default{
             
             &:focus {
                 outline: none; /* 移除默認的focus邊框 */
-                border: 1px solid rgb(207, 111, 131);
             }
             &:nth-child(0){
-                width: 500px;
+                width: 600px;
 
             }
         }
@@ -331,6 +328,12 @@ export default{
         align-items: left;
         justify-content: left;
 
+        .bx-image-add{
+            font-size: 40px;
+            color: rgb(128, 128, 128);
+            cursor: pointer;
+        }
+
         .optionInput{
             width: 100%;
             display: flex;
@@ -354,6 +357,7 @@ export default{
                 width: 500px;
                 height: 25px;
                 position: relative;
+                
                 &:before{
                     content: '';
                     position: absolute;
@@ -378,8 +382,8 @@ export default{
         }
 
         p{
-          
-            font-weight: 400;
+            font-size: 20px;
+            font-weight: 700;
         }
 
         input,textarea{

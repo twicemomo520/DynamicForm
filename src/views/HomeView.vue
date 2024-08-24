@@ -53,6 +53,11 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
 
 <template>
     <mouseEffect/>
+    <div class="">
+        <input type="checkbox" class="toggle" id = "rounded">
+        <label for="rounded" data-checked="Checked" class="rounded" data-unchecked="Unchecked">你好啊</label>
+    </div>
+
     <div class="entrance">
         <div class="container">
 

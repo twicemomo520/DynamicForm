@@ -2,6 +2,21 @@
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
 import mouseEffect from './components/mouseEffect/mouseEffect.vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const loadCircleWorklet = async () => {
+
+    if ('paintWorklet' in CSS) {
+      await CSS.paintWorklet.addModule('https://unpkg.com/css-houdini-circles/dist/circles.js');
+    } 
+    else {
+      console.error('Your browser does not support Paint Worklet.');
+    }
+}
+
+onMounted(() => {
+  loadCircleWorklet();
+})
 
 </script>
 
@@ -27,8 +42,15 @@ import mouseEffect from './components/mouseEffect/mouseEffect.vue';
   justify-content: center;
   background-repeat: no-repeat;      
   background-size: cover;
- 
 
+  --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+    --min-radius: 20;
+    --max-radius: 100;
+    --num-circles: 30;
+    --min-opacity: 10;
+    --max-opacity: 50;
+    --seed: 42;
+    background-image: paint(circles);
   
   .header{
     width:15%;
@@ -41,6 +63,8 @@ import mouseEffect from './components/mouseEffect/mouseEffect.vue';
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-bottom: 5%;
+
 
   }
 }

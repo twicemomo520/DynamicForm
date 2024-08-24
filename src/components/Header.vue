@@ -28,7 +28,7 @@ export default{
             <RouterLink class = "routeItem"  to="/" @click="currentPage = 'home'" :class="{clickStyle: currentPage == 'home'}">
                 <i class="fa-solid fa-house" ></i>首頁</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/ManageSurvey" @click="currentPage = 'ManageSurvey'" :class="{clickStyle: currentPage == 'Questionnaire'}">
+            <RouterLink class = "routeItem"  to="/ManageSurvey" @click="currentPage = 'ManageSurvey'" :class="{clickStyle: currentPage == 'ManageSurvey'}">
                 <i class="fa-solid fa-plus"></i>管理問卷</RouterLink>
 
             <RouterLink class = "routeItem"  to="/QuestionWrite" @click="currentPage = 'QuestionWrite'" :class="{clickStyle: currentPage == 'QuestionWrite'}">
@@ -78,7 +78,6 @@ export default{
         justify-content: flex-start;
         position: relative;
         background: #F7F7F5;
-        opacity: 0.8;
         padding: 5px;
     
     .logo{
