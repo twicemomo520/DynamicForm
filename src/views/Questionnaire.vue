@@ -27,6 +27,7 @@ export default{
         }
     },
     created(){
+        //test
         let savedData = sessionStorage.getItem('inputData')
         if (savedData){
             this.allData = JSON.parse(savedData)
