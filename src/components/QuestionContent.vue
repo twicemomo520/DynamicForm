@@ -1,28 +1,36 @@
 ﻿<script>
+import {useEditStore} from "@/stores/databaseEdit"
+
 export default{
+    
     components:{
 
     },
     data(){
         return{
-            firstPage: {"firstPage":null},
-            secondPage:{
-                id: '',
-                formQuestion:'',
-                formSingleOrMulti:'單選',
-                formMustCheckbox:false,
-                formOptionTemp:"",
-                formOption:[],
+            quiz:{
+                name:'',
+                description:'',
+                startDate:'',
+                endDate:'',
+                published:false   
             },
+            ques:{
+                quizId:'',
+                id: '',
+                qu:'',
+                type:'單選',
+                necessary:false,
+                options:[],
+            },
+            optionTemp:"",
 
-            tableData:[],
-            
+            quesList:[],
             selectedRows:[],
 
+            databaseEdit:useEditStore().databaseEdit,
             isEditing:false,
-
             currentDeleteId:null,
-
         }
     },
 
@@ -33,110 +41,126 @@ export default{
     },
     methods:{
         previousPage(){
-            this.saveData()
+            this.saveToSessionStorage()
             this.$emit("changeView", 'QuestionTitle')
         },
         nextPage(){
-            this.saveData()
+            this.saveToSessionStorage()
             this.$emit("changeView", 'QuestionCheck')
 
         },
-        saveData(){
-            this.firstPage.firstPage["tableData"] = this.tableData
-            sessionStorage.setItem("tableData", JSON.stringify(this.tableData))
-            sessionStorage.setItem("inputDataContent", JSON.stringify(this.secondPage))
-            sessionStorage.setItem("inputTitleContent", JSON.stringify(this.firstPage))
+        initialQuesState(){  
+            this.ques = {
+                quizId: '',
+                id: '',
+                qu: '',
+                type: '單選',
+                necessary: false,
+                options: [],
+            };
+            this.optionTemp = ''
         },
 
+
         pushToOption(){
-            let data = this.secondPage.formOptionTemp
-            this.secondPage.formOption.push(data)
-            this.secondPage.formOptionTemp = ""
+            this.ques.options.push(this.optionTemp)
+            this.optionTemp = ""
         },
         deleteOption(index){
-            this.secondPage.formOption.splice(index, 1)
+            if (Array.isArray(this.ques.options)) {
+                this.ques.options.splice(index, 1);
+            } else {
+                console.error("options 不是list:", this.ques.options);
+            }
         },
         pushToTable(){
             if (!this.isEditing){
-                let length = this.tableData.length
-                this.secondPage['id'] = length+1
-                let deepCopy = JSON.parse(JSON.stringify(this.secondPage));
-                this.tableData.push(deepCopy)
-                
-                this.secondPage = {
-                    formQuestion: '',
-                    formSingleOrMulti: '',
-                    formMustCheckbox: false,
-                    formOptionTemp:"",
-                    formOption: [],
-                    };
+                let length = this.quesList.length
+                this.ques['quizId'] = this.quiz.id
+                this.ques['id'] = length+1
+                let deepCopy = JSON.parse(JSON.stringify(this.ques));
+                this.quesList.push(deepCopy)
+                sessionStorage.setItem('quesList', JSON.stringify(this.quesList))
+                sessionStorage.removeItem('ques')
+
+                this.initialQuesState()
                 }     
             else{
-                let index = this.tableData.findIndex(item => item.id === this.secondPage.id)
+                this.ques['quizId'] = this.quiz.id
+                let index = this.quesList.findIndex(item => item.id == this.ques.id)
                 if (index !== -1){
-                    this.tableData.splice(index, 1, JSON.parse(JSON.stringify(this.secondPage)))
+                    this.quesList.splice(index, 1, JSON.parse(JSON.stringify(this.ques)))
                 }
-
                 this.isEditing = false;
+                sessionStorage.setItem('quesList', JSON.stringify(this.quesList))
+                sessionStorage.removeItem('ques')
 
-                this.secondPage = {
-                    id: '',
-                    formQuestion: '',
-                    formSingleOrMulti: '',
-                    formMustCheckbox: false,
-                    formOptionTemp:"",
-                    formOption: [],
-                    };
+                this.initialQuesState()
 
             }              
         },
         deleteSelected(){
             // 删除選中的行
-            this.tableData = this.tableData.filter((item, index) => !this.selectedRows.includes(index));
+            this.quesList = this.quesList.filter((item, index) => !this.selectedRows.includes(index));
             // 清空已選中的項目
             this.selectedRows = [];  
             
-            this.tableData.forEach(function(item, index){
+            this.quesList.forEach(function(item, index){
                 item.id = index+1
             })
         },
-
         editSelected(item,index){
-            this.secondPage = {
-                id:item.id,
-                formQuestion: item.formQuestion,
-                formSingleOrMulti: item.formSingleOrMulti,
-                formMustCheckbox: item.formMustCheckbox,
-                formOption: item.formOption,
+            this.ques = {
+                id: item.id,
+                qu: item.qu,
+                type: item.type,
+                necessary: item.necessary,
+                options: item.options,
             },
             this.isEditing = true
-        }
+        },
+        saveToSessionStorage(){
+            sessionStorage.setItem('ques', JSON.stringify(this.ques))
+            sessionStorage.setItem('quesList', JSON.stringify(this.quesList))
+        },
     },
 
-
     created(){
-        if (this.databaseItem){
-            this.tableData = this.databaseItem.firstPage.tableData
+        if (this.databaseItem && useEditStore().databaseEdit){
+            this.quesList = this.databaseItem.quesList
         }
 
-        let inputDataTitle = sessionStorage.getItem('inputDataTitle')
-        if (inputDataTitle){
-            this.firstPage.firstPage = JSON.parse(inputDataTitle)  
-        }
-
-        let savedContent = sessionStorage.getItem('inputDataContent')
-        if (savedContent){
-            this.secondPage = JSON.parse(savedContent)
-        }
-
-        let tableData = sessionStorage.getItem("tableData")
-        if (tableData){
-            this.tableData = JSON.parse(tableData)
+        let quiz = sessionStorage.getItem('quiz')
+        if (quiz){
+            this.quiz = JSON.parse(quiz)  
         }
         
-        window.addEventListener('beforeunload', this.clearTableSession);
+        let ques = sessionStorage.getItem('ques')
+        if (ques){
+            this.ques = JSON.parse(ques)  
+        }
+
+        let quesList = sessionStorage.getItem('quesList')
+        if (quesList){
+            this.quesList = JSON.parse(quesList)  
+        }
 
 
+        // let inputDataTitle = sessionStorage.getItem('inputDataTitle')
+        // if (inputDataTitle){
+        //     this.firstPage.firstPage = JSON.parse(inputDataTitle)  
+        // }
+
+        // let savedContent = sessionStorage.getItem('inputDataContent')
+        // if (savedContent){
+        //     this.secondPage = JSON.parse(savedContent)
+        // }
+
+        // let tableData = sessionStorage.getItem("tableData")
+        // if (tableData){
+        //     this.tableData = JSON.parse(tableData)
+        // }
+        
     }
 }
 </script>
@@ -147,67 +171,69 @@ export default{
         <!-- <h1>{{ databaseItem.firstPage.tableData }}</h1> -->
         <!-- <h1>table資料{{ databaseItem }}</h1> -->
         <!-- <h1>第一個page{{ this.firstPage.firstPage }}</h1> -->
-        <h1>是否編輯中{{ databaseEdit }}</h1>
-        <h1>{{ databaseEdit }}</h1>
+        <!-- <h1>是否編輯中{{ databaseEdit }}</h1> -->
+        <!-- <h1>{{ quiz }}</h1> -->
+        <!-- <h1>quesList:{{ quesList }}</h1> -->
         <div class="inputArea1">
             <p>新增問題: </p>
-            <textarea type="text" class="inputTextArea inputTextArea-center" v-model="secondPage.formQuestion" placeholder="請輸入問題">
+            <textarea type="text" class="inputTextArea inputTextArea-center" v-model="ques.qu" @input="saveToSessionStorage" placeholder="請輸入問題">
             </textarea>
-            <select v-model="secondPage.formSingleOrMulti">
+            <select v-model="ques.type" @input="saveToSessionStorage">
+                <option value="" disabled selected>請選擇</option>
                 <option value="單選" >單選題</option>
                 <option value="多選" >多選題</option>
                 <option value="選單" >選單題</option>
                 <option value="詳述" >詳述題</option>
             </select>
-            <input type="checkbox" id = "mustCheck" v-model="secondPage.formMustCheckbox">
+            <input type="checkbox" id="mustCheck" v-model="ques.necessary" @input="saveToSessionStorage">
             <label for="mustCheck">必填</label>
-
         </div>  
 
-        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '單選'">
+
+        <div class="inputArea2" v-if="ques.type == '單選'">
             <div class="optionInput">
                 <p>輸入選項:</p>
-                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <input type="text" v-model="optionTemp" @input="saveToSessionStorage" placeholder="請回答" @keyup.enter="pushToOption">
                 <i class='bx bx-image-add'></i>
                 <button @click="pushToOption" >新增選項</button>
             </div>
-            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+            <div class="optionItem" v-for="(item, index) in ques.options" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
                 <i class="fa-regular fa-circle-dot" style="color: gray;"></i>
                 <p>{{ item }}</p>
                 <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" ></i>
             </div>
         </div>
         
-        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '多選'">
+        <div class="inputArea2" v-if="ques.type == '多選'">
             <div class="optionInput">
                 <p>輸入選項:</p>
-                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <input type="text" v-model="optionTemp"@input="saveToSessionStorage" placeholder="請回答" @keyup.enter="pushToOption">
                 <button @click="pushToOption">新增選項</button>
             </div>
-            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+            <div class="optionItem" v-for="(item, index) in ques.options" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
                 <i class="fa-regular fa-square-check" style="color: gray;"></i>
                 <p>{{ item }}</p>
                 <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" style="color: blue;"></i>
             </div>
         </div>
 
-        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '選單'">
+        <div class="inputArea2" v-if="ques.type == '選單'">
             <div class="optionInput">
                 <p>輸入選項:</p>
-                <input type="text" v-model="secondPage.formOptionTemp" placeholder="請回答" @keyup.enter="pushToOption">
+                <input type="text" v-model="optionTemp" @input="saveToSessionStorage" placeholder="請回答" @keyup.enter="pushToOption">
                 <button @click="pushToOption">新增選項</button>
             </div>
-            <div class="optionItem" v-for="(item, index) in secondPage.formOption" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
+            <div class="optionItem" v-for="(item, index) in ques.options" :key="index" @mouseover="currentDeleteId=index" @mouseout="currentDeleteId=null">
                 <i class="fa-solid fa-circle" style="color: gray; font-size: 10px;"></i>
                 <p>{{ item }}</p>
                 <i class="fa-solid fa-x" @click="deleteOption(index)" v-show="currentDeleteId == index" style="color: blue;"></i>
             </div>
         </div>
         
-        <div class="inputArea2" v-if="secondPage.formSingleOrMulti == '詳述'">
+        <div class="inputArea2" v-if="ques.type == '詳述'">
             <div class="littleArea">
                 <p>(請詳述你的答案)</p>
-                <textarea type="text" class="inputResize" v-model="secondPage.formOption" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
+                <textarea type="text" class="inputResize" v-model="ques.options" placeholder="核廢料(高雄中學); 金貝貝(高雄女中); 貂蟬(北一女)">
                 </textarea>
             </div>
         </div>
@@ -231,12 +257,12 @@ export default{
                 </thead>
 
                 <tbody>
-                    <tr v-for="(item,index) in tableData" :key="item.id">
+                    <tr v-for="(item,index) in quesList" :key="item.id">
                         <th><input type="checkbox" v-model="selectedRows" :value="index"></th>
                         <th>{{ item.id }}</th>
-                        <th>{{ item.formQuestion }}</th>
-                        <th>{{ item.formSingleOrMulti}}</th>
-                        <th>{{ item.formMustCheckbox ? '必填' : '非必填'}}</th>
+                        <th>{{ item.qu }}</th>
+                        <th>{{ item.type}}</th>
+                        <th>{{ item.necessary ? '必填' : '非必填'}}</th>
                         <!-- <th>{{ mustCheckbox }}</th> -->
                         <th class = "tableEdit" v-on:click="editSelected(item, index)">編輯</th>
                     </tr>

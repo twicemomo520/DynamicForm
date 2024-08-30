@@ -1,10 +1,12 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import {useHeaderPageStore} from "@/stores/headerPage"
 
 export default{
     data(){
         return{
-            currentPage:"home",
+            currentPage:useRoute().path,
         }
     },
     components:{
@@ -13,6 +15,10 @@ export default{
     methods:{
         goToYouTube(){
             window.open('https://www.youtube.com', '_blank');
+        },
+        changePage(page){
+            this.currentPage = page
+            useHeaderPageStore().currentHeaderPage = page
         }
     }
 }
@@ -25,29 +31,29 @@ export default{
             <h1>Premium</h1>
         </div>
         <div class="headerArea">
-            <RouterLink class = "routeItem"  to="/" @click="currentPage = 'home'" :class="{clickStyle: currentPage == 'home'}">
+            <RouterLink class = "routeItem"  to="/" @click="changePage('home')" :class="{clickStyle: currentPage == 'home'}">
                 <i class="fa-solid fa-house" ></i>首頁</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/ManageSurvey" @click="currentPage = 'ManageSurvey'" :class="{clickStyle: currentPage == 'ManageSurvey'}">
+            <RouterLink class = "routeItem"  to="/ManageSurvey" @click="changePage('ManageSurvey')" :class="{clickStyle: currentPage == 'ManageSurvey'}">
                 <i class="fa-solid fa-plus"></i>管理問卷</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/QuestionWrite" @click="currentPage = 'QuestionWrite'" :class="{clickStyle: currentPage == 'QuestionWrite'}">
+            <RouterLink class = "routeItem"  to="/FillSurvey" @click="changePage('FillSurvey')" :class="{clickStyle: currentPage == 'FillSurvey'}">
                 <i class="fa-solid fa-pen-to-square"></i>填問卷</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/PiniaTest" @click="currentPage = 'PiniaTest'" :class="{clickStyle: currentPage == 'PiniaTest'}">
+            <!-- <RouterLink class = "routeItem"  to="/PiniaTest" @click="changePage('PiniaTest')" :class="{clickStyle: currentPage == 'PiniaTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>pinia測試</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/FuriosaTest" @click="currentPage = 'FuriosaTest'" :class="{clickStyle: currentPage == 'FuriosaTest'}">
+            <RouterLink class = "routeItem"  to="/FuriosaTest" @click="changePage('FuriosaTest')" :class="{clickStyle: currentPage == 'FuriosaTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>Furiosa測試</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/PatternTest" @click="currentPage = 'PatternTest'" :class="{clickStyle: currentPage == 'PatternTest'}">
+            <RouterLink class = "routeItem"  to="/PatternTest" @click="changePage('PatternTest')" :class="{clickStyle: currentPage == 'PatternTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>Pattern測試</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/MouseEffectTest" @click="currentPage = 'MouseEffectTest'" :class="{clickStyle: currentPage == 'MouseEffectTest'}">
+            <RouterLink class = "routeItem"  to="/MouseEffectTest" @click="changePage('MouseEffectTest')" :class="{clickStyle: currentPage == 'MouseEffectTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>MouseEffect測試</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/BeautifulTableTest" @click="currentPage = 'BeautifulTableTest'" :class="{clickStyle: currentPage == 'BeautifulTableTest'}">
-                <i class="fa-regular fa-face-laugh-squint"></i>BeautifulTable測試</RouterLink>
+            <RouterLink class = "routeItem"  to="/BeautifulTableTest" @click="changePage('BeautifulTableTest')" :class="{clickStyle: currentPage == 'BeautifulTableTest'}">
+                <i class="fa-regular fa-face-laugh-squint"></i>BeautifulTable測試</RouterLink> -->
         </div>    
         <div class="login">
             <i class="fa-solid fa-user"></i>
@@ -104,7 +110,7 @@ export default{
         align-items: center;
         justify-content: start;
         cursor: pointer;
-        margin: 20px 0;
+        margin: 50px 0;
         padding: 0 20px;
         i{
             font-size: 20px;
@@ -121,13 +127,13 @@ export default{
     .headerArea{
 
         width: 100%;
-        height: 60%;
+        height: 30%;
         display: flex;
         flex-direction: column;
         align-items: start;
         justify-content: space-around;
         background: #F7F7F5;
-        padding-top: 10px;
+        padding-top: 30px;
         .clickStyle{
             background-color: #dee0fe;
             border-radius:  12px;       
@@ -157,18 +163,16 @@ export default{
                 background-color: #dee0fe;
                 border-radius:  12px;       
                 // border: 1px solid #7980de;
-
-                // &:before{
-                //     content: "";
-                //     position: absolute;
-                //     left: 0;
-                //     bottom: 0;
-                //     width: 100%;
-                //     height: 5px;
-                //     background-color: #a62be4;
-
-                // }
             }
+            &:before{
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    height: 2px;
+                    background-color: #3f39427c;
+                }
         }
     } 
 

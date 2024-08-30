@@ -7,15 +7,21 @@ import {useEditStore} from "@/stores/databaseEdit"
 export default{
     data(){
         return{
-            data:{"pages":[]},
+            search:{
+                quizName: "",
+                startDate:"",
+                endDate:""
+            },
+
+            quizResList:[],
             subData:[],
             currentPage:1,
             selectedIds:[],
             dataTest:'嗨嗨',
-            databaseEdit:useEditStore().databaseEdit,
             currentDeleteId: null,
             currentStateFilter:"",
             selectedRowIndex :[],
+            databaseEdit: useEditStore().databaseEdit
         }
     },
 
@@ -26,47 +32,91 @@ export default{
     
     mounted(){
         this.loadCircleWorklet()
-        this.$refs.options.style.visibility = 'hidden';
+        if(this.$refs.options){
+            this.$refs.options.style.visibility = 'hidden';
+        }
         document.addEventListener('click', this.handleClickOutside);
     },
     beforeDestroy() {
-    // 在组件销毁前移除事件监听器，防止内存泄漏
-    document.removeEventListener('click', this.handleClickOutside);
+        document.removeEventListener('click', this.handleClickOutside);
   },
     methods:{
 
         goToDestination() {
             this.$router.push('/Questionnaire');
         },
+
         goToEditDestination(item, index){
+            event.stopPropagation()
             this.$router.push({name:'Questionnaire', query:{formId:JSON.stringify(item)}});
             useEditStore().databaseEdit = true;
         },
 
         fetchFirstData() {
-            axios.get('../src/assets/database.json')  // 替換為實際URL或是路徑
+            axios.post('http://localhost:8080/quiz/search', {   
+                        "quizName": "",
+                        "startDate":"",
+                        "endDate":""
+                    })  
                 .then(response => {
-                    this.data = response.data  // 將獲取的值給surveyData
-                    this.subData = response.data.pages.slice(0,10);  // 將獲取的值給surveyData
+                    this.quizResList = response.data.quizResList
+                    this.quizResList.forEach(quizRes=>{
+                        quizRes.quesList.forEach(ques=>{
+                            ques.options = ques.options.split(';')
+                        })
+                    })
 
+                    this.subData = response.data.quizResList.slice(0,10)
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);  // 錯誤處理
+                });
+        },
+        
+        fetchData() {
+            axios.post('http://localhost:8080/quiz/search',{
+                        "quizName": this.search.quizName,
+                        "startDate":this.search.startDate,
+                        "endDate":this.search.endDate
+                    })  
+                .then(response => {
+                    this.quizResList = response.data.quizResList
+                    this.quizResList.forEach(quizRes=>{
+                        quizRes.quesList.forEach(ques=>{
+                            ques.options = ques.options.split(';')
+                        })
+                    })
+
+                    let start = (this.currentPage*10 -10)
+                    let end = (this.currentPage*10)
+                    this.subData = response.data.quizResList.slice(start,end);  // 將獲取的值給surveyData
+                    if (this.subData.length == 0 && this.currentPage > 1) {
+                        this.currentPage--;  
+                        this.changeTab(this.currentPage);
+                    }
                 })
                 .catch(error => {
                 console.error('Error fetching data:', error);  // 錯誤處理
                 });
         },
-        
+
         deleteSelected(){
-            axios.post("http://localhost:3000/delete", {ids: this.selectedRowIndex})
+            axios.post("http://localhost:8080/quiz/delete", {
+                "quizIdList":this.selectedRowIndex
+            })
                 .then(response =>{
-                    this.selectedIds = [];
+                    this.selectedRowIndex = [];
                     this.fetchData();  // 重新抓取資料    
                 })
                 .catch(error => console.error("Error delete data", error));
             
         },
 
-        deleteSingleButton(id){
-            axios.post("http://localhost:3000/deleteSingle", {ids: id})
+        deleteSingleButton(id, event){
+            event.stopPropagation(); // 阻止事件冒泡
+            axios.post("http://localhost:8080/quiz/delete", {
+                "quizIdList":[id]
+            })
                 .then(response =>{
                     this.fetchData();  // 重新抓取資料      
                 })
@@ -75,22 +125,6 @@ export default{
             this.animateButton(event)
         },
 
-        fetchData() {
-            axios.get('../src/assets/database.json')  // 替換為實際URL或是路徑
-                .then(response => {
-                    this.data = response.data  // 將獲取的值給surveyData
-                    let start = (this.currentPage*10 -10)
-                    let end = (this.currentPage*10)
-                    this.subData = response.data.pages.slice(start,end);  // 將獲取的值給surveyData
-                    if (this.subData.length == 0 && this.currentPage > 1) {
-                        this.currentPage--;  
-                        this.changeTab(this.currentPage);
-                }
-                })
-                .catch(error => {
-                console.error('Error fetching data:', error);  // 錯誤處理
-                });
-        },
         
         fetchDeleteData() {
             axios.get("/api/delete")
@@ -107,7 +141,7 @@ export default{
             }
         },
 
-        openOrClose(start_Date, end_Date){
+        openOrClose(start_Date, end_Date, isPublished){
             let startDate = new Date(start_Date)
             let endDate = new Date(end_Date) 
             
@@ -117,14 +151,17 @@ export default{
             // let month = String(now.getMonth() + 1).padStart(2, '0');   
             // let day = String(now.getDate()).padStart(2, '0');
             // this.firstPage.startDate = `${year}-${month}-${day}`;
-            if (currentDate < startDate){
+            if ((currentDate < startDate) && isPublished){
                 return "未開放"
             }
-            else if ((currentDate >= startDate) && (currentDate <= endDate)){
+            else if ((currentDate >= startDate) && (currentDate <= endDate) &&(isPublished)){
                 return "進行中"
             }
-            else if (currentDate > endDate){
-                return "結束"
+            else if ((currentDate > endDate)&&(isPublished)){
+                return "已結束"
+            }
+            else if (!isPublished){
+                return "未發布"
             }
         },
 
@@ -132,7 +169,7 @@ export default{
             let start = (index*10 -10)
             let end = (index*10)
 
-            let subData = this.data.pages.slice(start, end)
+            let subData = this.quizResList.slice(start, end)
             this.subData = subData     
             this.currentPage = index    
         },
@@ -165,42 +202,56 @@ export default{
         if (state == '未開放'){
             if (this.currentStateFilter != "未開放"){
                 this.currentStateFilter = "未開放"
-                let newSubData = this.data.pages.filter(item => {
-                    return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "未開放";   
+                let newSubData = this.quizResList.filter(item => {
+                    return this.openOrClose(item.startDate, item.endDate, item.published) == "未開放";   
                 })
                 this.subData = newSubData.slice(0,10);
             }
             else{
                 this.currentStateFilter = ""
-                this.subData = this.data.pages.slice(0,10); 
+                this.subData = this.quizResList.slice(0,10); 
             }
             
         }
         if (state == '進行中'){
             if (this.currentStateFilter != "進行中"){
                 this.currentStateFilter = "進行中"
-                let newSubData = this.data.pages.filter(item => {
-                    return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "進行中";   
+                let newSubData = this.quizResList.filter(item => {
+                    return this.openOrClose(item.startDate, item.endDate, item.published) == "進行中";   
                 })
                 this.subData = newSubData.slice(0,10);
             }
             else{
                 this.currentStateFilter = ""
-                this.subData = this.data.pages.slice(0,10); 
+                this.subData = this.quizResList.slice(0,10); 
             }
             
         }
-        if (state == '結束'){
-            if (this.currentStateFilter != "結束"){
-                this.currentStateFilter = "結束"
-                let newSubData = this.data.pages.filter(item => {
-                    return this.openOrClose(item.firstPage.startDate, item.firstPage.endDate) == "結束";   
+        if (state == '已結束'){
+            if (this.currentStateFilter != "已結束"){
+                this.currentStateFilter = "已結束"
+                let newSubData = this.quizResList.filter(item => {
+                    return this.openOrClose(item.startDate, item.endDate, item.published) == "已結束";   
                 })
                 this.subData = newSubData.slice(0,10);
             }
             else{
                 this.currentStateFilter = ""
-                this.subData = this.data.pages.slice(0,10); 
+                this.subData = this.quizResList.slice(0,10); 
+            }
+            
+        }
+        if (state == '未發布'){
+            if (this.currentStateFilter != "未發布"){
+                this.currentStateFilter = "未發布"
+                let newSubData = this.quizResList.filter(item => {
+                    return this.openOrClose(item.startDate, item.endDate, item.published) == "未發布";   
+                })
+                this.subData = newSubData.slice(0,10);
+            }
+            else{
+                this.currentStateFilter = ""
+                this.subData = this.quizResList.slice(0,10); 
             }
             
         }
@@ -210,32 +261,32 @@ export default{
         
         if (value == '編號( 小到大 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return a.firstPage.id - b.firstPage.id
+                return a.id - b.id
             })
         }
         if (value == '編號( 大到小 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return b.firstPage.id - a.firstPage.id
+                return b.id - a.id
             })
         }
         if (value == '開始日期( 最近 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return new Date(a.firstPage.startDate) - new Date(b.firstPage.startDate)
+                return new Date(a.startDate) - new Date(b.startDate)
             })
         }
         if (value == '開始日期( 最遠 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return new Date(b.firstPage.startDate) - new Date(a.firstPage.startDate)
+                return new Date(b.startDate) - new Date(a.startDate)
             })
         }
         if (value == '結束日期( 最近 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return new Date(a.firstPage.endDate) - new Date(b.firstPage.endDate)
+                return new Date(a.endDate) - new Date(b.endDate)
             })
         }
         if (value == '結束日期( 最遠 )'){
             this.subData = this.subData.sort((a,b)=>{
-                return new Date(b.firstPage.endDate) - new Date(a.firstPage.endDate)
+                return new Date(b.endDate) - new Date(a.endDate)
             })
         }
         this.toggleSelectMenu()
@@ -262,6 +313,7 @@ export default{
       },
 
       handleClickOutside(event){
+        if (this.$refs.options){
             if (this.$refs.options.style.visibility == 'visible' 
             && !this.$refs.options.contains(event.target) 
             && !this.$refs.selectBtnBorder.contains(event.target)){
@@ -270,21 +322,57 @@ export default{
                 this.$refs.selectBtnBorder.style.background = 'white';
                 this.$refs.selectBtnBorder.style.color = 'black';
             }
-        },
+        }
+    },
 
-      selectDeleteRow(index){
-        const indexArray = this.selectedRowIndex.indexOf(index)
+      selectDeleteRow(id){
+        const indexArray = this.selectedRowIndex.indexOf(id)
         if(indexArray > -1){
             this.selectedRowIndex.splice(indexArray, 1)
         }
         else{
-            this.selectedRowIndex.push(index)
+            this.selectedRowIndex.push(id)
         }
-      }
+      },
+      canSelectRow(item) {
+            const status = this.openOrClose(item.startDate, item.endDate, item.published);
+            return status !== '進行中' && status !== '已結束';
+        },
+      goPublishOrCancel(item, event){
+        let deepCopyItem = JSON.parse(JSON.stringify(item))
+        deepCopyItem.quesList.forEach((item, index)=>{
+            item.options = item.options.join(';')
+        })
+        event.stopPropagation()
+        if (!deepCopyItem.published) {
+            deepCopyItem.published = 1
+            axios.post('http://localhost:8080/quiz/update', deepCopyItem)
+                .then(response => {
+                    alert(item.name + 'success publishe !!!!');
+                    this.$router.go()
+                })
+                .catch(error => {
+                    console.error('Failed to save data:', error);
+                    alert(item.name + 'cannot publishe !!!!');
+                    })
+            }
+        else{
+            deepCopyItem.published = 0
+            axios.post('http://localhost:8080/quiz/update', deepCopyItem)
+                .then(response => {
+                    alert(item.name + 'success cancel publishe !!!!');
+                    this.$router.go()
+                })
+                .catch(error => {
+                    console.error('Failed to save data:', error);
+                    alert(item.name + 'cannot cancel publishe !!!!');
+                    })
+            }
+    }
   },
   computed:{
         generateBottombar(){
-            return Math.ceil(this.data.pages.length / 10);
+            return Math.ceil(this.quizResList.length / 10);
         }
     }
 }
@@ -297,18 +385,26 @@ export default{
             <!-- <h1>{{ data.pages }}</h1> -->
             <!-- <h1>{{ subData }}</h1> -->
             <!-- <h1>{{ selectedRowIndex }}</h1> -->
+            <!-- <h1>是否編輯中:{{ databaseEdit }}</h1> -->
+            <!-- <h1>{{ quizResList }}</h1> -->
+            <!-- <h1>{{ subData[0] }}</h1> -->
+            <!-- <h1>quizName {{ search.quizName }}</h1> -->
+            <!-- <h1>startDate {{ search.startDate }}</h1> -->
+            <!-- <h1>endDate {{ search.endDate }}</h1> -->
+            <!-- <h1>selectedRowIndex{{ selectedRowIndex }}</h1> -->
+             <!-- <h1>subData{{ subData[0] }}</h1> -->
             <div class="topContainer">
                 <div class="content">
                     <div class="topCotent">
                         <p>問卷名稱: </p>
-                        <input type="text">
+                        <input type="text" v-model="this.search.quizName">
                     </div>
                     <div class="bottomContent">
                         <p>統計時間: </p>
-                        <input type="date">
+                        <input type="date" v-model="this.search.startDate">
                         <p id="to">到</p>
-                        <input type="date">
-                        <button>搜尋</button>
+                        <input type="date" v-model="this.search.endDate">
+                        <button @click="fetchData">搜尋</button>
                     </div>
                 </div>
             </div>
@@ -320,7 +416,8 @@ export default{
                 <div class="filter">
                     <p @click="stateFilterChange('未開放')" :class="{'before':currentStateFilter === '未開放'}">未開放</p>
                     <p @click="stateFilterChange('進行中')" :class="{'ing':currentStateFilter === '進行中'}">進行中</p>
-                    <p @click="stateFilterChange('結束')" :class="{'after':currentStateFilter === '結束'}">結束</p>
+                    <p @click="stateFilterChange('已結束')" :class="{'after':currentStateFilter === '已結束'}">已結束</p>
+                    <p @click="stateFilterChange('未發布')" :class="{'after':currentStateFilter === '未發布'}">未發布</p>
                 </div>    
 
                 <div class="selectMenu">
@@ -357,48 +454,69 @@ export default{
                     </ul>
                 </div>
             </div>
-            <div class="tableContainer">
+            <div class="tableContainer" v-if="quizResList.length > 0">
                 <div class="content">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>勾選</th>
+                                    <th></th>
                                     <th>編號</th>
                                     <th>問卷名稱</th>
                                     <th>開放狀態</th>
                                     <th>開始時間</th>
                                     <th>結束時間</th>
                                     <th>編輯</th>
+                                    <th>發布</th>
                                     <th>統計結果</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, index) in subData" :key="index" 
-                                @mouseover="currentDeleteId = index" @mouseout="currentDeleteId = null" 
-                                :class="{ 'hovered': currentDeleteId == index, 'selected': selectedRowIndex.includes(index)}" @click="selectDeleteRow(index)">
-                                    
+                                <tr v-for="(item, index) in subData" :key="item.id" 
+                                @mouseover="currentDeleteId = item.id" @mouseout="currentDeleteId = null" 
+                                :class="{ 'hovered': currentDeleteId == item.id, 'selected': selectedRowIndex.includes(item.id), 
+                                    'disabled': !canSelectRow(item)}" 
+                                    @click="canSelectRow(item) ? selectDeleteRow(item.id) : null">
                                     <td class="deleteId">
                                         <!-- <input type="checkbox" v-model="selectedIds" :value="item.firstPage.id"> -->
-                                        <i class='bx bx-check' v-show="selectedRowIndex.includes(index)" ></i>
-                                        <i class='bx bx-trash bx-tada' v-show="currentDeleteId == index" @click="deleteSingleButton(String(item.firstPage.id))"></i>
+                                        <i class='bx bx-check' v-show="selectedRowIndex.includes(item.id)" ></i>
+                                        <i class='bx bx-trash bx-tada' v-show="(currentDeleteId == item.id) && (canSelectRow(item))" @click="deleteSingleButton(item.id, $event)"></i>
+
+
                                     </td>
               
-                                    <td class="id">{{ item.firstPage.id}}</td>
-                                    <td class="formName">{{ item.firstPage.formName}}</td>
+                                    <td class="id">{{ item.id}}</td>
+                                    <td class="formName">{{ item.name}}</td>
                                     <td class="status">
                                         <span :class="{ 
-                                        'before': openOrClose(item.firstPage.startDate, item.firstPage.endDate) == '未開放',
-                                        'ing': openOrClose(item.firstPage.startDate, item.firstPage.endDate) == '進行中',
-                                        'after': openOrClose(item.firstPage.startDate, item.firstPage.endDate) == '結束', }"
+                                        'before': openOrClose(item.startDate, item.endDate, item.published) == '未開放',
+                                        'ing': openOrClose(item.startDate, item.endDate, item.published) == '進行中',
+                                        'after': openOrClose(item.startDate, item.endDate, item.published) == '已結束', 
+                                        'unpublished': openOrClose(item.startDate, item.endDate, item.published) == '未發布',}"
                                         >
-                                        {{ openOrClose(item.firstPage.startDate, item.firstPage.endDate)}}
+                                        {{ openOrClose(item.startDate, item.endDate, item.published)}}
                                         </span>
                                     </td>
-                                    <!-- <td>{{ item.firstPage.formDescribe}}</td> -->
-                                    <td class="startDate">{{ item.firstPage.startDate }}</td>
-                                    <td class="endDate">{{ item.firstPage.endDate }}</td>
-                                    <td @click="goToEditDestination(item, index)">編輯問卷</td>
-                                    <td @click="goToEditDestination(item, index)">編輯問卷</td>
+                                    <td class="startDate">{{ item.startDate }}</td>
+                                    <td class="endDate">{{ item.endDate }}</td>
+
+                                    <td class="goToEditDestination" @click="goToEditDestination(item, index)" v-if="openOrClose(item.startDate, item.endDate, item.published) != '進行中' && openOrClose(item.startDate, item.endDate, item.published) != '已結束'">編輯問卷
+                                    </td>
+                                    <td class="noGoToEditDestination" v-else>
+                                        <img src="../assets/forbidGif.gif"></img>
+                                    </td>
+                                    
+                                    
+                                    <td class="goPublishOrCancel">
+                                            <button class="publishButton" :class="{unPublishButton: item.published == true}" 
+                                            @click="goPublishOrCancel(item, $event)" v-show="(openOrClose(item.startDate, item.endDate, item.published) != '進行中') &&
+                                            (openOrClose(item.startDate, item.endDate, item.published) != '已結束')">
+                                                {{ item.published? "取消發布":"去發布"}}</button>
+                                    </td>
+                                    <td>
+                                        <RouterLink class="statistics" 
+                                        :to="{path: '/QuestionStatistics', query: { formId:JSON.stringify(item)}}" 
+                                        @click="useHeaderPageStore().currentHeaderPage = 'QuestionStatistics'">統計結果</RouterLink>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -441,6 +559,8 @@ $clr-unpaid: #ffcdd2;
 $clr-unpaid-font: #c62828;
 $clr-paid: #c8e6c9;
 $clr-paid-font: #388e3c;
+$clr-unpublished: #e0e0e0;
+$clr-unpublished-font: #4b4b4b;
 $clr-link: #2962ff;
 
 /*   border radius */
@@ -461,10 +581,10 @@ $baby-blue: #f8faff;
 .full{
     width: 100%;
     height: 100%;
-    overflow: auto;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-y: scroll;
     color: #212121;
     
 
@@ -481,6 +601,10 @@ $baby-blue: #f8faff;
         width: 100%;
         height: 100%;
         padding: 5% 10%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
         .topContainer{
             width: 100%;
             height: 20%;
@@ -619,6 +743,12 @@ $baby-blue: #f8faff;
                     border-bottom: 4px solid $clr-unpaid-font;
                     box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2)
                 }
+                :nth-child(4){
+                    color: $clr-unpublished-font;
+                    background-color: $clr-unpublished;
+                    border-bottom: 4px solid $clr-unpublished-font;
+                    box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2)
+                }
 
                 @keyframes anim-shadow{
                     50% {
@@ -627,21 +757,24 @@ $baby-blue: #f8faff;
                 }
                 .before {
                     border-bottom: 1px solid $clr-pending-font;
-                    margin-bottom: 0px;
                     box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
                     margin-top: 10px;
                     animation:anim-shadow .5s forwards;
                 }
                 .ing {
                     border-bottom: 1px solid $clr-paid-font;
-                    margin-bottom: 0px;
                     box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
                     margin-top: 10px;
                     animation:anim-shadow .5s forwards;
                 }
                 .after {
                     border-bottom: 1px solid $clr-unpaid-font;
-                    margin-bottom: 0px;
+                    box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                    margin-top: 10px;
+                    animation:anim-shadow .5s forwards;
+                }
+                .unpublished {
+                    border-bottom: 1px solid $clr-unpublished-font;
                     box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
                     margin-top: 10px;
                     animation:anim-shadow .5s forwards;
@@ -710,7 +843,7 @@ $baby-blue: #f8faff;
             .content{
                 table{
                     width: 100%;
-                    table-layout: fixed; 
+                    // table-layout: fixed; 
                     border-collapse: collapse;
                     border-spacing: 0;
                     background-color: white;
@@ -732,6 +865,7 @@ $baby-blue: #f8faff;
                                 border:1px solid red;
                             }
                         }
+                        
                     }
 
                     .status{
@@ -758,6 +892,14 @@ $baby-blue: #f8faff;
                             text-align: center;
                             background-color: $clr-unpaid;
                             color: $clr-unpaid-font;
+                        }
+                        .unpublished{
+                            border-radius: $radius;
+                            border-bottom: 1px solid $clr-unpublished-font;
+                            padding: 0.2rem 1rem;
+                            text-align: center;
+                            background-color: $clr-unpublished;
+                            color: $clr-unpublished-font;
                         }
                     }
                     thead{
@@ -788,10 +930,55 @@ $baby-blue: #f8faff;
                         letter-spacing: 0.1rem;
                         font-size: 20px;
                     }
+                    td:first-child{
+                        width: 120px;
+                    }
 
-                    td:last-child{
+                    .goToEditDestination {
+                        text-align: center;
                         cursor: pointer;
                         color: rgba(25, 18, 238, 0.774); 
+                    }
+                    .noGoToEditDestination{
+                        text-align: center;
+                        img{
+                            width: 30px;
+                            height: 30px;
+                        }
+                    }
+                    .goPublishOrCancel{
+                        .publishButton{
+                            width: 90px;
+                            height: 40px;
+                            font-size: 20px;
+                            border-radius: 12px;
+                            border: none;
+                            border-bottom: 1px solid $clr-paid-font;
+                            background-color: $clr-paid;
+                            color: $clr-paid-font;
+                            box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
+                            cursor: pointer;
+                            &:active{
+                                padding-top: 2px;
+                                box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                            }
+                        }                    
+                        .unPublishButton{
+                            width: 90px;
+                            height: 40px;
+                            font-size: 20px;
+                            border-radius: 12px;
+                            border: none;
+                            border-bottom: 1px solid $clr-unpaid-font;
+                            background-color: $clr-unpaid;
+                            color: $clr-unpaid-font;
+                            box-shadow: 2px 2px 12px rgba(0,0,0,0.3), 10px 10px 8px rgba(0,0,0,0.2);
+                            cursor: pointer;
+                            &:active{
+                                padding-top: 2px;
+                                box-shadow: -1px 2px 12px rgba(0,0,0,0.3);
+                            }
+                        }                    
                     }
 
                     tr.hovered {
@@ -804,17 +991,18 @@ $baby-blue: #f8faff;
                         box-shadow: 2px 2px 12px rgba(0,0,0,0.5), -1px -1px 8px rgba(0,0,0,0.2);
                         // border-bottom: 2px solid rgba(0, 0, 255, 0.54);
                     }
+                    .statistics{
+                        text-decoration: none;
+                        cursor:point;
+                        color: rgba(25, 18, 238, 0.774); 
+                    }
+
                     
                 }
             }
 
         }
-        // .bottomContainer{
-        //     width: 100%;
-        //     height: 5%;
-        //     background-color: #795334;
 
-        // }
         .bottomBar{
             width: 100%;
             height: 5%;

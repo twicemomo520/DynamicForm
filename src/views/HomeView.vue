@@ -1,6 +1,6 @@
 <script>
 import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
-
+import {useHeaderPageStore} from "@/stores/headerPage"
   export default {
     components:{
         mouseEffect
@@ -68,12 +68,13 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
             <i class="fa-solid fa-circle-arrow-right" @click="nextEevee"></i>
 
             <div class="manageSurvey-container">
-                <i class="fa-solid fa-file-lines"></i>
-                <RouterLink class = "manageSurvey"  to="/ManageSurvey">管理問卷</RouterLink>
+                <i class='bx bxs-file ' ></i>
+                <RouterLink class = "manageSurvey"  to="/ManageSurvey" @click="useHeaderPageStore().currentHeaderPage = 'ManageSurvey'">管理問卷</RouterLink>
             </div>
             <div class="fillSurvey-container">
-                <i class="fa-solid fa-file-signature"></i>
-                <RouterLink class = "fillSurvey"  to="/FillSurvey">填問卷</RouterLink>
+                <!-- <i class="fa-solid fa-file-signature"></i> -->
+                <i class='bx bx-edit-alt bx-tada' ></i>
+                <RouterLink class = "fillSurvey"  to="/FillSurvey" @click="useHeaderPageStore().currentHeaderPage = 'FillSurvey'">填問卷</RouterLink>
             </div>
         </div>
     </div>   
@@ -114,14 +115,14 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
     // background:linear-gradient(45deg, #FFAFBD, #ffc3a0);
     // background:linear-gradient(145deg, #c7a8ef 0%, #c7a8ef 50%, #8249cd 50%, #8249cd 100%);
 
-    --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
-    --min-radius: 20;
-    --max-radius: 100;
-    --num-circles: 30;
-    --min-opacity: 10;
-    --max-opacity: 50;
-    --seed: 42;
-    background-image: paint(circles);
+    // --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+    // --min-radius: 20;
+    // --max-radius: 100;
+    // --num-circles: 30;
+    // --min-opacity: 10;
+    // --max-opacity: 50;
+    // --seed: 42;
+    // background-image: paint(circles);
     // height: 100vh; /* 背景覆盖整个视口 */
     // display: flex;
     // align-items: center;
@@ -156,8 +157,7 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
 
             &:hover{
                 transition: 0.5s;
-                transform: scale(1.2);
-                // transform: rotateX(720deg) scale(1.4);
+                transform: rotateX(720deg) scale(1.05);
 
             }
 
@@ -179,11 +179,11 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
             border-radius: 55px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             cursor: pointer;
-            animation: spin 5s linear infinite, orbit 5s linear infinite;
+            // animation: spin 5s linear infinite, orbit 5s linear infinite;
             transform-origin: -50px 50%;
             &:hover{
                 transition: 0.5s;
-                transform: rotateX(720deg) scale(1.4); 
+                transform: rotateZ(360deg) scale(1.05); 
 
             }
 

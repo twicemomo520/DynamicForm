@@ -3,6 +3,7 @@ import QuestionTitle from "../components/QuestionTitle.vue"
 import QuestionContent from "../components/QuestionContent.vue"
 import QuestionCheck from "../components/QuestionCheck.vue"
 import QuestionHome from "../components/QuestionHome.vue"
+import {useEditStore} from "@/stores/databaseEdit"
 
 export default{
     components:{
@@ -15,9 +16,8 @@ export default{
         return{
             currentView:"QuestionTitle",
             titleData: null,
-            allData:null,
             databaseItem:null,
-            testItem: "哈哈測試",
+            databaseEdit:useEditStore().databaseEdit
         }
     },
     methods:{
@@ -27,17 +27,28 @@ export default{
         }
     },
     created(){
-        //test
-        let savedData = sessionStorage.getItem('inputData')
-        if (savedData){
-            this.allData = JSON.parse(savedData)
+        if (useEditStore().databaseEdit){ 
+            const formId = this.$route.query.formId;
+            if (formId) {
+                try {
+                    this.databaseItem = JSON.parse(formId);
+                } catch (e) {
+                    console.error('Invalid JSON format for formId:', e.message);
+                }
+            } else {
+                console.warn('formId is undefined or empty');
+            }
+
         }
+    },
+    beforeRouteLeave(to, from, next) {
+        useEditStore().databaseEdit = false;
 
-        const formId = this.$route.query.formId;
-        this.databaseItem = formId ? JSON.parse(formId) : null;
+        sessionStorage.clear();
 
-        
+        next();
     }
+    
 }
 </script>
 
@@ -47,19 +58,19 @@ export default{
             <h1 v-on:click = "currentView ='QuestionTitle'" :class="{'clickStyle': currentView=='QuestionTitle'}">問卷題目</h1>
             <h1 v-on:click = "currentView ='QuestionContent'" :class="{'clickStyle': currentView=='QuestionContent'}">問卷內容</h1>
             <h1 v-on:click = "currentView ='QuestionCheck'" :class="{'clickStyle': currentView=='QuestionCheck'}">問卷確認</h1>
-            <h1 v-on:click = "currentView ='QuestionCheck'" >統計</h1>
+            <!-- <h1 v-on:click = "currentView ='QuestionCheck'" >統計</h1> -->
         </div>
+        <!-- <h1>Questionnaire是否編輯中: {{ databaseEdit }}</h1> -->
 
-        <QuestionTitle class="content"  v-if="currentView==='QuestionTitle'" 
+        <QuestionTitle class="content"  v-if="currentView=='QuestionTitle'" 
         @changeView="changeView" :databaseItem="databaseItem" >
         </QuestionTitle>
 
-
-        <QuestionContent class="content" v-if="currentView==='QuestionContent'" :class="{'clickStyle': currentView=='QuestionTitle'}"
+        <QuestionContent class="content" v-if="currentView=='QuestionContent'"
         @changeView="changeView" :databaseItem="databaseItem" >
         </QuestionContent>
         
-        <QuestionCheck  class="content" v-if="currentView==='QuestionCheck'" :class="{'clickStyle': currentView=='QuestionTitle'}"
+        <QuestionCheck  class="content" v-if="currentView=='QuestionCheck'" 
         @changeView="changeView" :databaseItem="databaseItem">
         </QuestionCheck>
     </div>
@@ -117,10 +128,7 @@ $pinkcolor10:rgb(255, 200, 212);
     .content{
         background-color: rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(20px);
-        background-image: linear-gradient(
-            180deg,
-            rgba(255,255,255,0.8),
-            );
+        background-image: linear-gradient(180deg,rgba(255,255,255,0.8),);
         border-radius:20px;    
         }
 
@@ -129,8 +137,8 @@ $pinkcolor10:rgb(255, 200, 212);
         display: flex;
         justify-content: center;
         align-items: center;
-        padding-top: 15px;
-        margin: 2% 0;
+        // padding-top: 15px;
+        margin: 5% 0;
         
         .clickStyle{
             background-color: $blackcolor7;
@@ -143,7 +151,8 @@ $pinkcolor10:rgb(255, 200, 212);
             display: flex;
             justify-content: center; /* 水平居中 */
             align-items: center; /* 垂直居中 */
-            background: $blackcolor10;
+            background: $blackcolor3;
+            // background: #a68b00;
             color: black;
             width: 120px;
             height: 50px;

@@ -4,14 +4,14 @@ import {useEditStore} from "@/stores/databaseEdit"
 export default{
     data(){
         return{
-            firstPage:{
-                formName:'',
-                formDescribe:'',
+            quiz:{
+                name:'',
+                description:'',
                 startDate:'',
-                endDate:''   
+                endDate:'',
+                published:false   
             },
             databaseEdit:useEditStore().databaseEdit
-
         }
     },
     props:["databaseItem", "testItem"],
@@ -24,8 +24,7 @@ export default{
 
     methods:{
         nextPage(){
-            sessionStorage.setItem('inputDataTitle', JSON.stringify(this.firstPage)) //名字叫inputData，存firstPage進去
-            sessionStorage.setItem('inputDataAll', JSON.stringify(this.firstPage))
+            this.saveToSessionStorage()
 
             this.$emit('changeView', 'QuestionContent')
         },
@@ -42,7 +41,7 @@ export default{
             let year = now.getFullYear();       
             let month = String(now.getMonth() + 1).padStart(2, '0');   
             let day = String(now.getDate()).padStart(2, '0');
-            this.firstPage.startDate = `${year}-${month}-${day}`;
+            this.quiz.startDate = `${year}-${month}-${day}`;
         },
         updateEndTime(){
             let now = new Date()
@@ -51,26 +50,30 @@ export default{
             let year = now.getFullYear();       
             let month = String(now.getMonth() + 1).padStart(2, '0');   
             let day = String(now.getDate()).padStart(2, '0');
-            this.firstPage.endDate = `${year}-${month}-${day}`;
+            this.quiz.endDate = `${year}-${month}-${day}`;
         },
-        clearTableSession(){
-            sessionStorage.removeItem("inputDataTitle")
-        }
+        saveToSessionStorage(){
+            sessionStorage.setItem('quiz', JSON.stringify(this.quiz))
+
+        },
+
     },
     created(){
         this.updateStartTime();
         this.updateEndTime();
-        let savedData = sessionStorage.getItem('inputDataTitle')
-        if (savedData){
-            this.firstPage = JSON.parse(savedData)  
-        }
 
-        if (this.databaseItem){
-            this.firstPage = this.databaseItem.firstPage
+        if (this.databaseItem && useEditStore().databaseEdit){
+            this.quiz = this.databaseItem
+            console.log("執行"+this.databaseItem && useEditStore().databaseEdit)
         }
+    
+        if(sessionStorage.getItem('quiz')){
+            this.quiz = JSON.parse(sessionStorage.getItem('quiz'))  
+            console.log("執行"+sessionStorage.getItem('quiz'))
+        } 
 
-        // window.addEventListener("beforeunload", this.clearTableSession)
     },
+
 
     
 }
@@ -80,27 +83,28 @@ export default{
     <div class="maxArea">
         <!-- <h1>哈囉{{ testItem }}</h1> -->
         <!-- <h1>{{ databaseItem}}</h1> -->
-        <h1>是否編輯中{{ databaseEdit }}</h1>
+        <!-- <h1>是否編輯中{{ databaseEdit }}</h1> -->
+        <!-- <h1>databaseItem:{{ databaseItem }}</h1> -->
         <div class="inputArea">
             <p>問卷名稱: </p>
-            <textarea type="text" class="inputTextArea"  v-model="firstPage.formName"   placeholder="問卷名稱">
+            <textarea type="text" class="inputTextArea"  v-model="quiz.name" @input="saveToSessionStorage"  placeholder="問卷名稱">
             </textarea>
         </div>  
         
         <div class="inputArea">
             <p>問卷說明: </p>
-            <textarea type="text" class="inputTextArea" v-model="firstPage.formDescribe" placeholder="問卷說明">
+            <textarea type="text" class="inputTextArea" v-model="quiz.description" @input="saveToSessionStorage" placeholder="問卷說明">
             </textarea> 
         </div>
 
         <div class="inputArea">
             <p>開始時間: </p>
-            <input type="date"  class="inputTextArea inputTextArea-center" v-model="firstPage.startDate">
+            <input type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.startDate" @input="saveToSessionStorage">
         </div>
         
         <div class="inputArea">
             <p>結束時間: </p>
-            <input type="date"  class="inputTextArea inputTextArea-center" v-model="firstPage.endDate">
+            <input type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.endDate" @input="saveToSessionStorage">
         </div>
 
         <button v-on:click="nextPage">下一頁</button>

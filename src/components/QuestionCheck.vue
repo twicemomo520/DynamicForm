@@ -5,7 +5,9 @@ import axios from 'axios';
 export default{
     data(){
         return{
-            firstPage:null,
+            quiz:null,
+            quesList:[],
+            quizAndQuesList:null,
             databaseEdit:useEditStore().databaseEdit,
         }
     },
@@ -23,7 +25,8 @@ export default{
         },
 
         submitEditData(){
-            axios.post('http://localhost:3000/edit-data', this.firstPage)
+            // axios.post('http://localhost:3000/edit-data', this.quiz)
+            axios.post('http://localhost:8080/quiz/update', this.quizAndQuesList)
             .then(response => {
                 alert('Data saved successfully!');
                 })
@@ -32,7 +35,7 @@ export default{
                 useEditStore().databaseEdit = false
             })    
             .then(()=>{
-                this.$router.push('/');
+                this.$router.push('/ManageSurvey');
             })
             .catch(error => {
                 console.error('Failed to save data:', error);
@@ -41,15 +44,13 @@ export default{
         },
 
         submitData(){
-            axios.post('http://localhost:3000/save-data', this.firstPage)
+            // axios.post('http://localhost:3000/save-data', this.quiz)
+            axios.post('http://localhost:8080/quiz/create', this.quizAndQuesList)
             .then(response => {
                 alert('Data saved successfully!');
                 })
             .then(()=>{
-                this.clearTableSession()    
-            })    
-            .then(()=>{
-                this.$router.push('/');   
+                this.$router.push('/ManageSurvey');   
             })    
             .catch(error => {
                 console.error('Failed to save data:', error);
@@ -59,10 +60,10 @@ export default{
 
         clearTableSession() {
             // 清空 sessionStorage
-            sessionStorage.removeItem('tableData');
-            sessionStorage.removeItem('inputDataTitle');
-            sessionStorage.removeItem('inputDataContent');
-            sessionStorage.removeItem('inputTitleContent');
+            // sessionStorage.removeItem('tableData');
+            // sessionStorage.removeItem('inputDataTitle');
+            // sessionStorage.removeItem('inputDataContent');
+            // sessionStorage.removeItem('inputTitleContent');
 
         },
 
@@ -72,10 +73,26 @@ export default{
 
     },
     created(){
-        let firstPage= sessionStorage.getItem("inputTitleContent")
-        if (firstPage){
-            this.firstPage = JSON.parse(firstPage)
+
+        let quiz = sessionStorage.getItem('quiz')
+        if (quiz){
+            this.quiz = JSON.parse(quiz)
+            this.quizAndQuesList = JSON.parse(quiz)
         }
+
+        let quesList = sessionStorage.getItem('quesList')
+        if (quesList){
+            this.quesList = JSON.parse(quesList)  
+            this.quizAndQuesList.quesList = JSON.parse(quesList)
+        }
+
+        this.quizAndQuesList.quesList.forEach(item=>{
+            if (Array.isArray(item.options)) {
+                item.options = item.options.join(';');
+            }
+
+        })    
+
     },
 
 }
@@ -84,9 +101,13 @@ export default{
 <template>
     
     <div class="maxArea">
-        <h1>是否編輯中{{ databaseEdit }}</h1>
-        <h1>{{firstPage.firstPage.formName}}</h1>
-        <div class="formDescribe">{{firstPage.firstPage.formDescribe}}</div>
+        <!-- <h1>是否編輯中{{ databaseEdit }}</h1>\n -->
+        <!-- <h1>quiz: {{ quiz }}</h1>\n -->
+        <!-- <h1>quesList: {{ quesList[0] }}</h1>\n -->
+        <!-- <h1>quizAndQuesList: {{ quizAndQuesList }}</h1> -->
+
+        <h1>{{quiz.name}}</h1>
+        <div class="formDescribe">{{quiz.description}}</div>
         <div class="personalData">
             <div class = "personalDetail">
                 <p>姓名:</p>
@@ -105,30 +126,30 @@ export default{
                 <input type="number">
             </div>
         </div>
-        <div class="formTable" v-for="item in firstPage.firstPage.tableData">
+        <div class="formTable" v-for="item in quesList">
             <div class="formQuestion">
-                <p>{{ item.formQuestion }}</p>
-                <p>{{ item.formMustCheckbox ? "*" : ""}}</p>
-                <p>({{ item.formSingleOrMulti }})</p>
+                <p>{{ item.qu }}</p>
+                <p>{{ item.necessary ? "*" : ""}}</p>
+                <p>({{ item.type }})</p>
             </div>
 
-            <div class="formSingle" v-if="item.formSingleOrMulti=='單選'" v-for="option in item.formOption">
+            <div class="formSingle" v-if="item.type=='單選'" v-for="option in item.options">
                 <input type="radio" :id="option" name="option" :value="option">
                 <label :for="option">{{ option }}</label>
             </div>
 
-            <div class="formMulti" v-if="item.formSingleOrMulti=='多選'" v-for="option in item.formOption">
+            <div class="formMulti" v-if="item.type=='多選'" v-for="option in item.options">
                 <input type="checkbox" :id="option" name="option" :value="option">
                 <label :for="option">{{ option }}</label>
             </div>
 
-            <div class="formSelect" v-if="item.formSingleOrMulti=='選單'">
+            <div class="formSelect" v-if="item.type=='選單'">
                 <select name="" id="">
-                    <option v-for="option in item.formOption" :key="option" :value="option">{{option}}</option>
+                    <option v-for="option in item.options" :key="option" :value="option">{{option}}</option>
                 </select>
             </div>
 
-            <div class="formInput" v-if="item.formSingleOrMulti=='詳述'">
+            <div class="formInput" v-if="item.type=='詳述'">
                 <textarea type="text">
                 </textarea>
             </div>
@@ -211,6 +232,12 @@ export default{
     .formTable{
         width: 100%;
         margin-bottom: 40px;
+        p{
+            font-size: 25px;
+        }
+        input{
+            font-size: 20px;
+        }
         .formQuestion{
             display: flex;
             align-items: center;
@@ -230,6 +257,7 @@ export default{
         input, select{
             border-radius: 6px;
             border: 1px solid #F7F7F5;
+            font-size: 17px;
         }
 
         textarea{

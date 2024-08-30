@@ -42,6 +42,15 @@ const router = createRouter({
       component: () => import('../views/QuestionWrite.vue')
     },
     {
+      path: '/QuestionStatistics',
+      name: 'QuestionStatistics',
+      component: () => import('../views/QuestionStatistics.vue')
+    },
+
+
+
+    
+    {
       path: '/PiniaTest',
       name: 'PiniaTest',
       component: () => import('../views/PiniaTest.vue')
