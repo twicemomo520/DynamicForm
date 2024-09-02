@@ -53,7 +53,7 @@ export default{
         },
 
         fetchFirstData() {
-            axios.post('http://localhost:8080/quiz/search', {   
+            axios.post('http://192.168.50.76:8080/quiz/search', {   
                         "quizName": "",
                         "startDate":"",
                         "endDate":""

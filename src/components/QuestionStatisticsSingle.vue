@@ -91,10 +91,6 @@ export default {
 </script>
 
 <template>
-    <!-- <h1>{{ feedbackList }}</h1>\n -->
-    <!-- <h1>{{ subData }}</h1>\n -->
-    <!-- <h1>{{ quiz }}</h1>\n -->
-    <!-- <h1>{{ feedbackSingleList }}</h1> -->
 
     <div class="full">
         <div class="singleInfoList" v-if="nowPage == 'singleInfoList'">
