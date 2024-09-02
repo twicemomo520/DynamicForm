@@ -1,5 +1,6 @@
 ﻿<script>
 import {useEditStore} from "@/stores/databaseEdit"
+import {useNgrokStore} from "@/stores/ngrok"
 import axios from 'axios';
 
 export default{
@@ -32,7 +33,7 @@ export default{
 
         submitData(){
             this.combine()
-            axios.post('http://localhost:8080/quiz/fillin', this.feedbackFinal)
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/fillin`, this.feedbackFinal)
             .then(response => {
                 alert('Data saved successfully!');
                 })

@@ -2,6 +2,7 @@
 import axios from 'axios'
 import moment from 'moment';
 import {useEditStore} from "@/stores/databaseEdit"
+import {useNgrokStore} from "@/stores/ngrok"
 
 // test
 export default{
@@ -48,7 +49,7 @@ export default{
         },
 
         fetchFirstData() {
-            axios.post('http://localhost:8080/quiz/search', {   
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/search`, {   
                         "quizName": "",
                         "startDate":"",
                         "endDate":""
@@ -70,7 +71,7 @@ export default{
         },
         
         fetchData() {
-            axios.post('http://localhost:8080/quiz/search',{
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/search`,{
                         "quizName": this.search.quizName,
                         "startDate":this.search.startDate,
                         "endDate":this.search.endDate
@@ -97,7 +98,7 @@ export default{
         },
 
         deleteSelected(){
-            axios.post("http://localhost:8080/quiz/delete", {
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/delete`, {
                 "quizIdList":this.selectedRowIndex
             })
                 .then(response =>{
@@ -110,7 +111,7 @@ export default{
 
         deleteSingleButton(id, event){
             event.stopPropagation(); // 阻止事件冒泡
-            axios.post("http://localhost:8080/quiz/delete", {
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/delete`, {
                 "quizIdList":[id]
             })
                 .then(response =>{

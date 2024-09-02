@@ -1,4 +1,5 @@
 ﻿<script>
+import {useNgrokStore} from "@/stores/ngrok"
 import axios from 'axios';
 import * as echarts from 'echarts';
 export default {
@@ -57,7 +58,7 @@ export default {
     methods: {
         async fetchStatistics(quizId) {
             try {
-                const response = await axios.post(`http://localhost:8080/quiz/statistics?quizId=${quizId}`)
+                const response = await axios.post(`${useNgrokStore().ngrokPath}/quiz/statistics?quizId=${quizId}`)
                 this.statisticsList = await response.data.statisticsList
                 this.drawAllCharts()
             } catch (error) {

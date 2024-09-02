@@ -2,6 +2,7 @@
 import axios from 'axios'
 import moment from 'moment';
 import { useEditStore } from "@/stores/databaseEdit"
+import {useNgrokStore} from "@/stores/ngrok"
 
 // test
 export default {
@@ -28,7 +29,7 @@ export default {
 
     methods: {
         fetchFeedbackList(quizId) {
-            axios.post(`http://localhost:8080/quiz/feedback?quizId=${quizId}`)
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/feedback?quizId=${quizId}`)
                 .then(response => {
                     const uniqueSet = new Set();
 

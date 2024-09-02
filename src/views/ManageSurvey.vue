@@ -2,6 +2,7 @@
 import axios from 'axios'
 import moment from 'moment';
 import {useEditStore} from "@/stores/databaseEdit"
+import {useNgrokStore} from "@/stores/ngrok"
 
 // test
 export default{
@@ -53,7 +54,7 @@ export default{
         },
 
         fetchFirstData() {
-            axios.post('https://452d-2001-b011-c006-f6c2-ad3e-82f6-de31-f689.ngrok-free.app/quiz/search', {   
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/search`, {   
                         "quizName": "",
                         "startDate":"",
                         "endDate":""
@@ -74,7 +75,7 @@ export default{
         },
         
         fetchData() {
-            axios.post('http://localhost:8080/quiz/search',{
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/search`,{
                         "quizName": this.search.quizName,
                         "startDate":this.search.startDate,
                         "endDate":this.search.endDate
@@ -101,7 +102,7 @@ export default{
         },
 
         deleteSelected(){
-            axios.post("http://localhost:8080/quiz/delete", {
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/delete`, {
                 "quizIdList":this.selectedRowIndex
             })
                 .then(response =>{
@@ -114,7 +115,7 @@ export default{
 
         deleteSingleButton(id, event){
             event.stopPropagation(); // 阻止事件冒泡
-            axios.post("http://localhost:8080/quiz/delete", {
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/delete`, {
                 "quizIdList":[id]
             })
                 .then(response =>{
@@ -346,7 +347,7 @@ export default{
         event.stopPropagation()
         if (!deepCopyItem.published) {
             deepCopyItem.published = 1
-            axios.post('http://localhost:8080/quiz/update', deepCopyItem)
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
                     alert(item.name + 'success publishe !!!!');
                     this.$router.go()
@@ -358,7 +359,7 @@ export default{
             }
         else{
             deepCopyItem.published = 0
-            axios.post('http://localhost:8080/quiz/update', deepCopyItem)
+            axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
                     alert(item.name + 'success cancel publishe !!!!');
                     this.$router.go()
