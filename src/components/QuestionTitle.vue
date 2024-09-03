@@ -23,24 +23,36 @@ export default{
     // },
 
     methods:{
-        isValidString(str) {
+        validateFields() {
             try {
-                if (str == null || str.trim() == "") {
-                    throw new Error("String is null or empty");
+                if (!this.quiz.name || this.quiz.name.trim() == "") {
+                    throw new Error("問卷名稱不能為空");
                 }
-            }catch(error){
-                console.error(error.message);
-                alert("Input cannot be empty")
-                return
-            }
-           
-        },
+                if (!this.quiz.description || this.quiz.description.trim() == "") {
+                    throw new Error("問卷說明不能為空");
+                }
+                if (!this.quiz.startDate || this.quiz.startDate.trim() == "") {
+                    throw new Error("開始時間不能為空");
+                }
+                if (!this.quiz.endDate || this.quiz.endDate.trim() == "") {
+                    throw new Error("結束時間不能為空");
+                }
+                if  (new Date(this.quiz.endDate) < new Date(this.quiz.startDate)){
+                    throw new Error("結束日期不能早於開始日期");
+                }
+        
+        return true; 
+
+      } catch (error) {
+            alert(error.message);
+        return false;
+      }
+    },
         
         nextPage(){
-            this.isValidString(this.quiz.name)
-            this.isValidString(this.quiz.description)
-            this.isValidString(this.quiz.startDate)
-            this.isValidString(this.quiz.endDate)
+            if (!this.validateFields()){
+                return
+            }
 
             this.saveToSessionStorage()
 

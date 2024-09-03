@@ -339,6 +339,7 @@ export default{
             const status = this.openOrClose(item.startDate, item.endDate, item.published);
             return status !== '進行中' && status !== '已結束';
         },
+
       goPublishOrCancel(item, event){
         let deepCopyItem = JSON.parse(JSON.stringify(item))
         deepCopyItem.quesList.forEach((item, index)=>{
@@ -350,7 +351,7 @@ export default{
             axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
                     alert(item.name + 'success publishe !!!!');
-                    this.$router.go()
+                    this.fetchData(); 
                 })
                 .catch(error => {
                     console.error('Failed to save data:', error);
@@ -362,7 +363,7 @@ export default{
             axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
                     alert(item.name + 'success cancel publishe !!!!');
-                    this.$router.go()
+                    this.fetchData();
                 })
                 .catch(error => {
                     console.error('Failed to save data:', error);

@@ -40,11 +40,44 @@ export default{
         
     },
     methods:{
+        validateFields(){
+           
+            try{
+                if (this.quesList.length == 0){
+                    throw new Error("必須新增問題選項");
+                }
+
+                this.quesList.forEach(ques=>{
+                    
+                    if (!ques.qu || ques.qu.trim()==""){
+                            throw new Error("問題不能為空");
+                    }
+                    if (ques.type !== '單選' && ques.type !== '複選' && ques.type !== '選單' && ques.type !== '詳述'){
+                            throw new Error("Select type 錯誤!!");
+                    }
+                    ques.options.forEach(option=>{
+                        if (!option || option.trim()==""){
+                            throw new Error("選項不能為空");
+                    }
+                    })
+                })
+
+                return true
+
+            }catch(error){
+                alert(error.message);
+                return false
+            }
+        },
+
         previousPage(){
             this.saveToSessionStorage()
             this.$emit("changeView", 'QuestionTitle')
         },
         nextPage(){
+            if (!this.validateFields()){
+                return;
+            }
             this.saveToSessionStorage()
             this.$emit("changeView", 'QuestionCheck')
 
@@ -258,7 +291,7 @@ export default{
 
                 <tbody>
                     <tr v-for="(item,index) in quesList" :key="item.id">
-                        <th><input type="checkbox" v-model="selectedRows" :value="index"></th>
+                        <th><input type="checkbox" v-model="selectedRows" :value="index">{{ selectedRows }}</th>
                         <th>{{ item.id }}</th>
                         <th>{{ item.qu }}</th>
                         <th>{{ item.type}}</th>
