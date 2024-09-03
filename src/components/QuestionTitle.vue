@@ -23,7 +23,25 @@ export default{
     // },
 
     methods:{
+        isValidString(str) {
+            try {
+                if (str == null || str.trim() == "") {
+                    throw new Error("String is null or empty");
+                }
+            }catch(error){
+                console.error(error.message);
+                alert("Input cannot be empty")
+                return
+            }
+           
+        },
+        
         nextPage(){
+            this.isValidString(this.quiz.name)
+            this.isValidString(this.quiz.description)
+            this.isValidString(this.quiz.startDate)
+            this.isValidString(this.quiz.endDate)
+
             this.saveToSessionStorage()
 
             this.$emit('changeView', 'QuestionContent')
@@ -42,6 +60,12 @@ export default{
             let month = String(now.getMonth() + 1).padStart(2, '0');   
             let day = String(now.getDate()).padStart(2, '0');
             this.quiz.startDate = `${year}-${month}-${day}`;
+
+            let nowMin = new Date()
+            let yearMin = nowMin.getFullYear();       
+            let monthMin = String(nowMin.getMonth() + 1).padStart(2, '0');   
+            let dayMin = String(nowMin.getDate()).padStart(2, '0');
+            this.$refs.startDate.setAttribute('min', `${yearMin}-${monthMin}-${dayMin}`);
         },
         updateEndTime(){
             let now = new Date()
@@ -51,6 +75,12 @@ export default{
             let month = String(now.getMonth() + 1).padStart(2, '0');   
             let day = String(now.getDate()).padStart(2, '0');
             this.quiz.endDate = `${year}-${month}-${day}`;
+
+            let nowMin = new Date()
+            let yearMin = nowMin.getFullYear();       
+            let monthMin = String(nowMin.getMonth() + 1).padStart(2, '0');   
+            let dayMin = String(nowMin.getDate()).padStart(2, '0');
+            this.$refs.endDate.setAttribute('min', `${yearMin}-${monthMin}-${dayMin}`);
         },
         saveToSessionStorage(){
             sessionStorage.setItem('quiz', JSON.stringify(this.quiz))
@@ -58,7 +88,7 @@ export default{
         },
 
     },
-    created(){
+     mounted(){
         this.updateStartTime();
         this.updateEndTime();
 
@@ -99,12 +129,12 @@ export default{
 
         <div class="inputArea">
             <p>開始時間: </p>
-            <input type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.startDate" @input="saveToSessionStorage">
+            <input ref="startDate" type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.startDate" @input="saveToSessionStorage">
         </div>
         
         <div class="inputArea">
             <p>結束時間: </p>
-            <input type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.endDate" @input="saveToSessionStorage">
+            <input ref="endDate" type="date"  class="inputTextArea inputTextArea-center" v-model="quiz.endDate" @input="saveToSessionStorage">
         </div>
 
         <button v-on:click="nextPage">下一頁</button>
