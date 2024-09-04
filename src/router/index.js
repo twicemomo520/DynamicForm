@@ -52,9 +52,6 @@ const router = createRouter({
       component: () => import('../views/SeatTest.vue')
     },
 
-
-
-    
     {
       path: '/PiniaTest',
       name: 'PiniaTest',
@@ -80,10 +77,6 @@ const router = createRouter({
       name: 'BeautifulTableTest',
       component: () => import('../views/BeautifulTableTest.vue')
     },    
-    {
-      path: '/:pathMatch(.*)*', // 捕捉所有未匹配的路徑
-      redirect: '/'  // 重定向到 HomeView
-    }
     
   ]
 })

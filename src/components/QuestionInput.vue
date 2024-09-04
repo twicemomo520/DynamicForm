@@ -25,6 +25,22 @@ export default{
     props:["databaseItem"],
     
     methods:{
+
+        validateFields(){
+            try{
+                if (!this.userInfo.name || this.userInfo.name.trim()==''){
+                    throw new Error("姓名不能為空")
+                } 
+                if (!this.userInfo.email || this.userInfo.email.trim()==''){
+                    throw new Error("email不能為空")
+                } 
+
+            }catch(error){
+                alert(error.message)
+                return false
+            }
+        },
+
         publish(){
             if (useEditStore().databaseEdit == false){ 
                 this.submitData()
@@ -87,9 +103,6 @@ export default{
         });
         
 
-        // this.feedbackList.push(quizId)
-
-        // console.log("執行" + quizId)
 
     },
 

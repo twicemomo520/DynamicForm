@@ -43,7 +43,8 @@ export default{
   },
     methods:{
 
-        goToQuestionFill(item, index){
+        goToQuestionFill(item, index, event){
+            event.stopPropagation()
             this.$router.push({name:'QuestionWrite', query:{formId:JSON.stringify(item)}});
             useEditStore().databaseEdit = true;
         },
@@ -317,7 +318,9 @@ export default{
             this.selectedRowIndex.push(index)
         }
       },
-      goToStatistics(item){
+
+      goToStatistics(item, event){
+        event.stopPropagation()
         this.$router.push({
             path: '/QuestionStatistics',
             query: { formId:JSON.stringify(item)}}
@@ -439,8 +442,8 @@ export default{
                                     <!-- <td>{{ item.firstPage.formDescribe}}</td> -->
                                     <td class="startDate">{{ item.startDate }}</td>
                                     <td class="endDate">{{ item.endDate }}</td>
-                                    <td @click="goToQuestionFill(item, index)">填寫問卷</td>
-                                    <td @click="goToStatistics(item)">查看統計</td>
+                                    <td @click="goToQuestionFill(item, index, $event)">填寫問卷</td>
+                                    <td @click="goToStatistics(item, $event)">查看統計</td>
                                 </tr>
                             </tbody>
                         </table>

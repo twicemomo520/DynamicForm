@@ -99,6 +99,9 @@ export default{
                 .catch(error => {
                 console.error('Error fetching data:', error);  // 錯誤處理
                 });
+            this.search.quizName = "",    
+            this.search.endDate = "",    
+            this.search.startDate = ""    
         },
 
         deleteSelected(){
