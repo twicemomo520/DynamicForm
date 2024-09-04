@@ -4,8 +4,7 @@ import { defineStore } from 'pinia'
 export const useNgrokStore = defineStore('ngrok', {
   state(){
     return{
-        // ngrokPath:"https://452d-2001-b011-c006-f6c2-ad3e-82f6-de31-f689.ngrok-free.app",
-        ngrokPath:"https://a4bb-60-249-245-168.ngrok-free.app",
+        ngrokPath:"https://0ebf-60-249-247-226.ngrok-free.app",
         localhost: "http://localhost"
     }
   }
