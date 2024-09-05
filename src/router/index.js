@@ -77,6 +77,11 @@ const router = createRouter({
       name: 'BeautifulTableTest',
       component: () => import('../views/BeautifulTableTest.vue')
     },    
+    {
+      path: '/AlertTest',
+      name: 'AlertTest',
+      component: () => import('../views/AlertTest.vue')
+    },    
     
   ]
 })

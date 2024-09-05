@@ -12,8 +12,11 @@ export default {
                     trigger: 'item'
                 },
                 legend: {
-                    top: '5%',
-                    left: 'center'
+                    top: '10%',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 18,  // 設置圖例的字體大小
+                        color: '#000'                      }
                 },
                 series: [
                     {
@@ -21,14 +24,18 @@ export default {
                         type: 'pie',
                         radius: ['40%', '70%'],
                         avoidLabelOverlap: false,
+                        center: ['50%', '65%'],  // 將圓餅圖下移以增加與圖例的距離
                         itemStyle: {
                             borderRadius: 10,
                             borderColor: '#fff',
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: false,  // 確保標籤顯示
+                            fontSize: 16,  // 調整 name 字體大小
+                            fontWeight: 'bold',  // 設置字體粗細
+                            formatter: '{b}',  // b 代表 name，這樣只顯示 name 不會顯示 value
+                            position: 'outside'  // 確保標籤在圓餅外部
                         },
                         emphasis: {
                             label: {
@@ -89,7 +96,7 @@ export default {
 <template>
     <div class="maxArea">
         <!-- <h1>{{ quiz }}</h1>\n -->
-        <!-- <h1>{{ statisticsList[0] }}</h1>\n -->
+        <!-- <h1>{{ statisticsList }}</h1>\n -->
         <!-- <h1>{{ option.series[0].data }}</h1> -->
 
         <h1>{{ quiz.name }}</h1>
@@ -97,7 +104,7 @@ export default {
         
         <div class="formTable" v-for="(ques, index) in quiz.quesList">
 
-            <div class="formQuestion">
+            <div class="formQuestion" v-if="ques.type!='詳述'">
                 <p>{{ ques.id }}.</p>
                 <p>{{ ques.qu }}</p>
                 <p>{{ ques.necessary ? "*" : "" }}</p>
@@ -108,10 +115,18 @@ export default {
 
             </div>
             
-            <div  v-if="ques.type=='詳述'">
 
-            </div>
         </div>
+        
+        <!-- <div class="formTable" v-for="(ques, index) in quiz.quesList">
+
+            <div class="formQuestion" v-if="ques.type == '詳述'">
+                <p>{{ ques.id }}.</p>
+                <p>{{ ques.qu }}</p>
+                <p>{{ ques.necessary ? "*" : "" }}</p>
+                <p>({{ ques.type }})</p>
+            </div>
+        </div> -->
 
     </div>
 </template>

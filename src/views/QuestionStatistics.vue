@@ -1,7 +1,8 @@
 ﻿<script>
     import QuestionStatisticsSingle from '@/components/QuestionStatisticsSingle.vue';
     import QuestionStatisticsAll from '@/components/QuestionStatisticsAll.vue';
-    
+    import{useStatisticsStore} from '@/stores/statistics'
+
     export default{
         data(){
             return{
@@ -18,7 +19,7 @@
 <template>
     <div class="container">
         <div class="h1Class">
-            <h1 v-on:click = "currentView ='QuestionStatisticsSingle'" :class="{'clickStyle': currentView=='QuestionStatisticsSingle'}">問題回饋</h1>
+            <h1  v-on:click = "currentView ='QuestionStatisticsSingle'" :class="{'clickStyle': currentView=='QuestionStatisticsSingle'}">問題回饋</h1>
             <h1 v-on:click = "currentView ='QuestionStatisticsAll'" :class="{'clickStyle': currentView=='QuestionStatisticsAll'}">統計</h1>
         </div>
 

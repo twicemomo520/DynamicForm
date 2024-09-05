@@ -3,7 +3,7 @@ import mouseEffect from '@/components/mouseEffect/mouseEffect.vue';
 import {useHeaderPageStore} from "@/stores/headerPage"
   export default {
     components:{
-        mouseEffect
+        // mouseEffect
     },
     data(){
         return{
@@ -52,7 +52,7 @@ import {useHeaderPageStore} from "@/stores/headerPage"
 </script>
 
 <template>
-    <mouseEffect/>
+    <!-- <mouseEffect/> -->
     <div class="">
         <input type="checkbox" class="toggle" id = "rounded">
         <label for="rounded" data-checked="Checked" class="rounded" data-unchecked="Unchecked">你好啊</label>

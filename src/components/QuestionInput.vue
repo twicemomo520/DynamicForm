@@ -1,6 +1,7 @@
 ﻿<script>
 import {useEditStore} from "@/stores/databaseEdit"
 import {useNgrokStore} from "@/stores/ngrok"
+import { useAlertStore } from "@/stores/alert";
 import axios from 'axios';
 
 export default{
@@ -28,31 +29,65 @@ export default{
 
         validateFields(){
             try{
+                
                 if (!this.userInfo.name || this.userInfo.name.trim()==''){
                     throw new Error("姓名不能為空")
+                } 
+                if (!this.userInfo.phone || this.userInfo.phone.trim()==''){
+                    throw new Error("手機不能為空")
                 } 
                 if (!this.userInfo.email || this.userInfo.email.trim()==''){
                     throw new Error("email不能為空")
                 } 
+                
+               
+
+                for (let i=0; i<this.quiz.quesList.length; i++){
+                    const ques = this.quiz.quesList[i]
+                    
+                    if (ques.necessary == true){
+                        const feedback = this.feedbackFinal.feedbackList.find(feedback => {
+                            return feedback.quId == ques.id
+                        })
+                        console.log("feedback: " + feedback)
+                        if (!feedback.ans || feedback.ans.trim()==""){
+                            throw new Error("必填必須作答")
+                        }
+                    }
+                    
+                }
+
+            return true
+
 
             }catch(error){
-                alert(error.message)
-                return false
-            }
-        },
-
-        publish(){
-            if (useEditStore().databaseEdit == false){ 
-                this.submitData()
+                this.alertStore.showError(error.message) 
+            return false
             }
         },
 
         submitData(){
+
             this.combine()
+            if (!this.validateFields()){
+                    return
+            }
+
             axios.post(`${useNgrokStore().ngrokPath}/quiz/fillin`, this.feedbackFinal)
             .then(response => {
-                alert('Data saved successfully!');
+                this.alertStore.showSuccess("作答成功已送出") 
                 })
+            .then(() => {
+                // 等待 showAlert 變為 false
+                return new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                    if (this.alertStore.showAlert == false) {
+                        clearInterval(interval); // 停止檢查
+                        resolve(); // 解析 Promise
+                    }
+                    }, 100); // 每100毫秒檢查一次
+                });
+            })  
             .then(()=>{
                 this.$router.push('/FillSurvey');   
             })    
@@ -62,25 +97,33 @@ export default{
             },
         
         combine(){
-            this.feedbackList.forEach((item, index)=>{
-                item.ans = this.ansList[index]
-                if (Array.isArray(item.ans)){
-                    item.ans = item.ans.join(';')
-                }
 
-                item.name = this.userInfo.name
-                item.phone = this.userInfo.phone
-                item.email = this.userInfo.email
-                item.age = this.userInfo.age
-                const now = new Date();
-                item.fillinDateTime = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString();
-            })
+            return new Promise((resolve) => {
+                    this.feedbackList.forEach((item, index)=>{
+                    item.ans = this.ansList[index]
+                    if (Array.isArray(item.ans)){
+                        item.ans = item.ans.join(';')
+                    }
 
-            this.feedbackFinal.feedbackList = this.feedbackList
+                    item.name = this.userInfo.name
+                    item.phone = this.userInfo.phone
+                    item.email = this.userInfo.email
+                    item.age = this.userInfo.age
+                    const now = new Date();
+                    item.fillinDateTime = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString();
+                })
+
+                this.feedbackFinal.feedbackList = this.feedbackList
+                resolve();
+            });
+
+
         }    
 
     },
     created(){
+        this.alertStore = useAlertStore()
+
         this.quiz = this.databaseItem
         let length = this.quiz.quesList.length
 
@@ -110,12 +153,21 @@ export default{
 </script>
 
 <template>
+
+    <SuccessAlert v-if="this.alertStore.alertType == 'success'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </SuccessAlert>
+
+    <ErrorAlert v-if="this.alertStore.alertType == 'error'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </ErrorAlert>
+
     
     <div class="maxArea">
-        <!-- <h1>quiz: {{ quiz }}</h1>\n -->
+        <h1>quiz: {{ quiz }}</h1>\n
         <!-- <h1>ansList{{ ansList }}</h1>\n -->
         <!-- <h1>feedbackList{{ feedbackList }}</h1> -->
-        <!-- <h1>feedbackFinal{{ feedbackFinal }}</h1> -->
+        <h1>feedbackFinal{{ feedbackFinal }}</h1>
         <!-- <button @click="combine">test</button> -->
         <h1>{{quiz.name}}</h1>
         <div class="formDescribe">{{quiz.description}}</div>

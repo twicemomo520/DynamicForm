@@ -1,5 +1,6 @@
 ﻿<script>
 import {useEditStore} from "@/stores/databaseEdit"
+import {useAlertStore} from "@/stores/alert"
 
 export default{
     data(){
@@ -11,16 +12,15 @@ export default{
                 endDate:'',
                 published:false   
             },
-            databaseEdit:useEditStore().databaseEdit
+            databaseEdit:useEditStore().databaseEdit,
+            alertStore: null
         }
     },
     props:["databaseItem", "testItem"],
     
-    // computed: {
-    //     formattedItem() {
-    //         return JSON.parse(JSON.stringify(this.databaseItem));
-    //     }
-    // },
+    created() {
+        this.alertStore = useAlertStore()
+    },
 
     methods:{
         validateFields() {
@@ -44,7 +44,7 @@ export default{
         return true; 
 
       } catch (error) {
-            alert(error.message);
+            this.alertStore.showError(error.message) 
         return false;
       }
     },
@@ -122,11 +122,16 @@ export default{
 </script>
 
 <template>
+
+    <SuccessAlert v-if="this.alertStore.alertType == 'success'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </SuccessAlert>
+
+    <ErrorAlert v-if="this.alertStore.alertType == 'error'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </ErrorAlert>
+
     <div class="maxArea">
-        <!-- <h1>哈囉{{ testItem }}</h1> -->
-        <!-- <h1>{{ databaseItem}}</h1> -->
-        <!-- <h1>是否編輯中{{ databaseEdit }}</h1> -->
-        <!-- <h1>databaseItem:{{ databaseItem }}</h1> -->
         <div class="inputArea">
             <p>問卷名稱: </p>
             <textarea type="text" class="inputTextArea"  v-model="quiz.name" @input="saveToSessionStorage"  placeholder="問卷名稱">
@@ -175,6 +180,8 @@ export default{
     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
     padding: 4% 2%;
     margin-bottom: 2%;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 
     .inputArea{
         width: 100%;

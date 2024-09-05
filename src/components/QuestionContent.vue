@@ -1,6 +1,6 @@
 ﻿<script>
 import {useEditStore} from "@/stores/databaseEdit"
-
+import { useAlertStore } from "@/stores/alert";
 export default{
     
     components:{
@@ -31,13 +31,20 @@ export default{
             databaseEdit:useEditStore().databaseEdit,
             isEditing:false,
             currentDeleteId:null,
+
         }
     },
 
     props:["databaseItem", "testItem"],
 
-    computed:{
-        
+    created() {
+        this.alertStore = useAlertStore()
+    },
+    computed: {
+        // 使用計算屬性來獲取 alertStore
+        alertStore() {
+            return useAlertStore();
+        },
     },
     methods:{
         validateFields(){
@@ -52,7 +59,7 @@ export default{
                     if (!ques.qu || ques.qu.trim()==""){
                             throw new Error("問題不能為空");
                     }
-                    if (ques.type !== '單選' && ques.type !== '複選' && ques.type !== '選單' && ques.type !== '詳述'){
+                    if (ques.type !== '單選' && ques.type !== '多選' && ques.type !== '選單' && ques.type !== '詳述'){
                             throw new Error("Select type 錯誤!!");
                     }
                     ques.options.forEach(option=>{
@@ -65,7 +72,7 @@ export default{
                 return true
 
             }catch(error){
-                alert(error.message);
+                    this.alertStore.showError(error.message) 
                 return false
             }
         },
@@ -199,6 +206,15 @@ export default{
 </script>
 
 <template>
+    
+    <SuccessAlert v-if="this.alertStore.alertType == 'success'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </SuccessAlert>
+
+    <ErrorAlert v-if="alertStore.alertType == 'error'">
+        <h1>{{alertStore.alertMessage}}</h1>
+    </ErrorAlert>
+    
     <div class="maxArea">
         <!-- test -->
         <!-- <h1>{{ databaseItem.firstPage.tableData }}</h1> -->
@@ -207,6 +223,7 @@ export default{
         <!-- <h1>是否編輯中{{ databaseEdit }}</h1> -->
         <!-- <h1>{{ quiz }}</h1> -->
         <!-- <h1>quesList:{{ quesList }}</h1> -->
+
         <div class="inputArea1">
             <p>新增問題: </p>
             <textarea type="text" class="inputTextArea inputTextArea-center" v-model="ques.qu" @input="saveToSessionStorage" placeholder="請輸入問題">
@@ -291,7 +308,7 @@ export default{
 
                 <tbody>
                     <tr v-for="(item,index) in quesList" :key="item.id">
-                        <th><input type="checkbox" v-model="selectedRows" :value="index">{{ selectedRows }}</th>
+                        <th><input type="checkbox" v-model="selectedRows" :value="index"></th>
                         <th>{{ item.id }}</th>
                         <th>{{ item.qu }}</th>
                         <th>{{ item.type}}</th>
@@ -329,7 +346,8 @@ export default{
     flex-wrap: wrap;
     border-radius: 6px;
     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
-
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     input,textarea{
         border-radius: 6px;
     }

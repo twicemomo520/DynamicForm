@@ -1,6 +1,7 @@
 ﻿<script>
 import {useEditStore} from "@/stores/databaseEdit"
 import {useNgrokStore} from "@/stores/ngrok"
+import {useAlertStore} from "@/stores/alert"
 import axios from 'axios';
 
 export default{
@@ -11,6 +12,15 @@ export default{
             quizAndQuesList:null,
             databaseEdit:useEditStore().databaseEdit,
         }
+    },
+    created() {
+        this.alertStore = useAlertStore()
+    },
+    computed: {
+        // 使用計算屬性來獲取 alertStore
+        alertStore() {
+            return useAlertStore();
+        },
     },
     methods:{
         previousPage(){
@@ -25,12 +35,23 @@ export default{
             }
         },
 
-        submitEditData(){
+        async submitEditData(){
             // axios.post('http://localhost:3000/edit-data', this.quiz)
             axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, this.quizAndQuesList)
             .then(response => {
-                alert('Data saved successfully!');
+                this.alertStore.showSuccess("資料儲存成功") 
                 })
+            .then(() => {
+                // 等待 showAlert 變為 false
+                return new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                    if (this.alertStore.showAlert == false) {
+                        clearInterval(interval); // 停止檢查
+                        resolve(); // 解析 Promise
+                    }
+                    }, 100); // 每100毫秒檢查一次
+                });
+            })     
             .then(()=>{
                 this.clearTableSession()  
                 useEditStore().databaseEdit = false
@@ -48,14 +69,26 @@ export default{
             // axios.post('http://localhost:3000/save-data', this.quiz)
             axios.post(`${useNgrokStore().ngrokPath}/quiz/create`, this.quizAndQuesList)
             .then(response => {
-                alert('Data saved successfully!');
-                })
+                this.alertStore.showSuccess("資料儲存成功") 
+            })
+            .then(() => {
+                // 等待 showAlert 變為 false
+                return new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                    if (this.alertStore.showAlert == false) {
+                        clearInterval(interval); // 停止檢查
+                        resolve(); // 解析 Promise
+                    }
+                    }, 100); // 每100毫秒檢查一次
+                });
+            })    
             .then(()=>{
-                this.$router.push('/ManageSurvey');   
+                this.$router.push('/ManageSurvey');
+                 
             })    
             .catch(error => {
                 console.error('Failed to save data:', error);
-                }); 
+            }); 
             
         },
 
@@ -100,7 +133,14 @@ export default{
 </script>
 
 <template>
-    
+    <SuccessAlert v-if="this.alertStore.alertType == 'success'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </SuccessAlert>
+
+    <ErrorAlert v-if="alertStore.alertType == 'error'">
+        <h1>{{alertStore.alertMessage}}</h1>
+    </ErrorAlert>
+
     <div class="maxArea">
         <!-- <h1>是否編輯中{{ databaseEdit }}</h1>\n -->
         <!-- <h1>quiz: {{ quiz }}</h1>\n -->
@@ -112,19 +152,19 @@ export default{
         <div class="personalData">
             <div class = "personalDetail">
                 <p>姓名:</p>
-                <input type="text">
+                <input type="text" disabled>
             </div>
             <div class = "personalDetail">
                 <p>手機:</p>
-                <input type="tel">
+                <input type="tel" disabled>
             </div>
             <div class = "personalDetail">
                 <p>E-mail:</p>
-                <input type="email">
+                <input type="email" disabled>
             </div>
             <div class = "personalDetail">
                 <p>年齡:</p>
-                <input type="number">
+                <input type="number" disabled>
             </div>
         </div>
         <div class="formTable" v-for="item in quesList">
@@ -135,23 +175,23 @@ export default{
             </div>
 
             <div class="formSingle" v-if="item.type=='單選'" v-for="option in item.options">
-                <input type="radio" :id="option" name="option" :value="option">
+                <input type="radio" :id="option" name="option" :value="option" disabled>
                 <label :for="option">{{ option }}</label>
             </div>
 
             <div class="formMulti" v-if="item.type=='多選'" v-for="option in item.options">
-                <input type="checkbox" :id="option" name="option" :value="option">
+                <input type="checkbox" :id="option" name="option" :value="option" disabled>
                 <label :for="option">{{ option }}</label>
             </div>
 
             <div class="formSelect" v-if="item.type=='選單'">
-                <select name="" id="">
+                <select name="" id="" disabled>
                     <option v-for="option in item.options" :key="option" :value="option">{{option}}</option>
                 </select>
             </div>
 
             <div class="formInput" v-if="item.type=='詳述'">
-                <textarea type="text">
+                <textarea type="text" disabled>
                 </textarea>
             </div>
 
@@ -183,7 +223,8 @@ export default{
     justify-content: start;
     flex-wrap: wrap;
     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
-
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     .formDescribe{
         margin-top: 20px;
     }

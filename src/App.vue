@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
-import mouseEffect from './components/mouseEffect/mouseEffect.vue';
+// import mouseEffect from './components/mouseEffect/mouseEffect.vue';
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const loadCircleWorklet = async () => {
@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   
   <div class="outerArea">
-    <mouseEffect />
+    <!-- <mouseEffect /> -->
     <div class="header">
       <Header />
     </div>
@@ -43,13 +43,20 @@ onMounted(() => {
   background-repeat: no-repeat;      
   background-size: cover;
 
-  --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+  --colors: #f941447d, #f3722c81, #f8961e77, #f9844a79, #f9c64f80, #90be6d7c, #43aa8b7c, #4d908e75, #57759075, #277ca179;
     --min-radius: 20;
     --max-radius: 100;
     --num-circles: 30;
     --min-opacity: 10;
     --max-opacity: 50;
     --seed: 42;
+  // --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
+  //   --min-radius: 20;
+  //   --max-radius: 100;
+  //   --num-circles: 30;
+  //   --min-opacity: 10;
+  //   --max-opacity: 50;
+  //   --seed: 42;
     background-image: paint(circles);
   
   .header{

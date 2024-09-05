@@ -442,7 +442,8 @@ export default{
                                     <!-- <td>{{ item.firstPage.formDescribe}}</td> -->
                                     <td class="startDate">{{ item.startDate }}</td>
                                     <td class="endDate">{{ item.endDate }}</td>
-                                    <td @click="goToQuestionFill(item, index, $event)">填寫問卷</td>
+                                    <td v-if="openOrClose(item.startDate, item.endDate, item.published) == '進行中'" @click="goToQuestionFill(item, index, $event)">填寫問卷</td>
+                                    <td v-else=""></td>
                                     <td @click="goToStatistics(item, $event)">查看統計</td>
                                 </tr>
                             </tbody>
@@ -519,7 +520,7 @@ $baby-blue: #f8faff;
     .container{
         width: 100%;
         height: 100%;
-        padding: 5% 10%;
+        padding: 5% 5%;
         .topContainer{
             width: 100%;
             height: 20%;
