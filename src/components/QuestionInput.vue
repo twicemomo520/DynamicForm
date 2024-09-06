@@ -250,7 +250,9 @@ export default{
     flex-wrap: wrap;
     border-radius: 6px;
     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
-
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    
     .formDescribe{
         margin-top: 20px;
     }
