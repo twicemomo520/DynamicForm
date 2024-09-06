@@ -3,6 +3,7 @@ import axios from 'axios'
 import moment from 'moment';
 import {useEditStore} from "@/stores/databaseEdit"
 import {useNgrokStore} from "@/stores/ngrok"
+import { useAlertStore } from '@/stores/alert';
 
 // test
 export default{
@@ -28,6 +29,7 @@ export default{
 
     created() {
         this.fetchFirstData();
+        this.alertStore = useAlertStore()
       
     },
     
@@ -353,24 +355,28 @@ export default{
             deepCopyItem.published = 1
             axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
-                    alert(item.name + 'success publishe !!!!');
+                    // alert(item.name + 'success publishe !!!!');
+                    this.alertStore.showSuccess(item.name + '發布成功') 
                     this.fetchData(); 
                 })
                 .catch(error => {
                     console.error('Failed to save data:', error);
-                    alert(item.name + 'cannot publishe !!!!');
+                    // alert(item.name + 'cannot publishe !!!!');
+                    this.alertStore.showError(item.name + '發布失敗') 
                     })
             }
         else{
             deepCopyItem.published = 0
             axios.post(`${useNgrokStore().ngrokPath}/quiz/update`, deepCopyItem)
                 .then(response => {
-                    alert(item.name + 'success cancel publishe !!!!');
+                    // alert(item.name + 'success cancel publishe !!!!');
+                    this.alertStore.showSuccess(item.name + '取消發布成功') 
                     this.fetchData();
                 })
                 .catch(error => {
                     console.error('Failed to save data:', error);
-                    alert(item.name + 'cannot cancel publishe !!!!');
+                    this.alertStore.showError(item.name + '取消發布失敗') 
+                    // alert(item.name + 'cannot cancel publishe !!!!');
                     })
             }
     }
@@ -384,6 +390,13 @@ export default{
 </script>
 
 <template>
+    <SuccessAlert v-if="this.alertStore.alertType == 'success'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </SuccessAlert>
+
+    <ErrorAlert v-if="this.alertStore.alertType == 'error'">
+        <h1>{{this.alertStore.alertMessage}}</h1>
+    </ErrorAlert>
     <!-- <h1>{{ currentStateFilter }}你好</h1> -->
     <div class="full">
         <div class="container">

@@ -79,6 +79,11 @@ export default {
 
             let ansList = feedbackSingleMap.ans
             return ansList[0];
+        },        
+        transferTime(time){
+            let dateTimeStr = time;
+            let updatedDateTimeStr = dateTimeStr.replace("T", " ");
+            return updatedDateTimeStr
         }
 
 
@@ -86,7 +91,8 @@ export default {
     computed: {
         generateBottombar() {
             return Math.ceil(this.feedbackList.length / 10);
-        }
+        },
+
     }
 }
 </script>
@@ -115,7 +121,7 @@ export default {
                                 <td class="formId">{{ index }}</td>
                                 <td class="formName">{{ item.name }}</td>
                                 <td class="formEmail">{{ item.email }}</td>
-                                <td class="fillinDate">{{ item.fillinDateTime }}</td>
+                                <td class="fillinDate">{{ transferTime(item.fillinDateTime) }}</td>
                                 <td @click="toSingleInfoPage(item)">查看統計</td>
                             </tr>
                         </tbody>
