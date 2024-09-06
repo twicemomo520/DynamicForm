@@ -13,7 +13,7 @@ export default{
                 name:"",
                 phone:"",
                 email:"",
-                age:0
+                age:null
             },
             feedback:{},
             ansList:[],
@@ -252,7 +252,7 @@ export default{
     box-shadow: 2px 2px 12px rgba(0,0,0,0.2), -1px -1px 8px rgba(0,0,0,0.2);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    
+
     .formDescribe{
         margin-top: 20px;
     }
