@@ -164,10 +164,10 @@ export default{
 
     
     <div class="maxArea">
-        <h1>quiz: {{ quiz }}</h1>\n
+        <!-- <h1>quiz: {{ quiz }}</h1>\n -->
         <!-- <h1>ansList{{ ansList }}</h1>\n -->
         <!-- <h1>feedbackList{{ feedbackList }}</h1> -->
-        <h1>feedbackFinal{{ feedbackFinal }}</h1>
+        <!-- <h1>feedbackFinal{{ feedbackFinal }}</h1> -->
         <!-- <button @click="combine">test</button> -->
         <h1>{{quiz.name}}</h1>
         <div class="formDescribe">{{quiz.description}}</div>
