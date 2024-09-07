@@ -73,8 +73,8 @@ import {useAlertStore} from "@/stores/alert"
     overflow: hidden;
     width: 1000px;
     height: 500px;
-    left:200px;
-    top:50px;
+    left:10%;
+    top:0%;
     z-index: 99;
     }
 
