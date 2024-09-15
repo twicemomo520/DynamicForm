@@ -39,12 +39,16 @@ export default{
 
             <RouterLink class = "routeItem"  to="/FillSurvey" @click="changePage('FillSurvey')" :class="{clickStyle: currentPage == 'FillSurvey'}">
                 <i class="fa-solid fa-pen-to-square"></i>填問卷</RouterLink>
+                
+            <RouterLink class = "routeItem"  to="/SeatTest" @click="changePage('SeatTest')" :class="{clickStyle: currentPage == 'SeatTest'}">
+                <i class="fa-solid fa-pen-to-square"></i>座位圖</RouterLink>
+
+            <RouterLink class = "routeItem"  to="/AnnouncementTest" @click="changePage('AnnouncementTest')" :class="{clickStyle: currentPage == 'AnnouncementTest'}">
+                <i class="fa-solid fa-pen-to-square"></i>公告</RouterLink>
 
             <!-- <RouterLink class = "routeItem"  to="/AlertTest" @click="changePage('AlertTest')" :class="{clickStyle: currentPage == 'AlertTest'}">
             <i class="fa-solid fa-pen-to-square"></i>Alert</RouterLink> -->
             
-            <!-- <RouterLink class = "routeItem"  to="/SeatTest" @click="changePage('SeatTest')" :class="{clickStyle: currentPage == 'SeatTest'}">
-                <i class="fa-solid fa-pen-to-square"></i>座位圖</RouterLink> -->
 
             <!-- <RouterLink class = "routeItem"  to="/PiniaTest" @click="changePage('PiniaTest')" :class="{clickStyle: currentPage == 'PiniaTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>pinia測試</RouterLink>

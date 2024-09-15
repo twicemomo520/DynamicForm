@@ -83,6 +83,17 @@ const router = createRouter({
       component: () => import('../views/AlertTest.vue')
     },    
     
+    {
+      path: '/SidebarTest',
+      name: 'SidebarTest',
+      component: () => import('../views/SidebarTest.vue')
+    },    
+    {
+      path: '/AnnouncementTest',
+      name: 'AnnouncementTest',
+      component: () => import('../views/AnnouncementTest.vue')
+    },    
+    
   ]
 })
 
