@@ -9,8 +9,8 @@ export default{
             dateForMonth: new Date(),
             dateForYear: new Date(),
 
-            startDate: this.getTodayDate(),
-            endDate: this.getTodayDate(),
+            startDate: null,
+            endDate: null,
 
             joinOrderList:[],
 
@@ -68,7 +68,6 @@ export default{
                     },
                 legend: {
                     data:['銷售額'],
-                    // top: '10%',
                     left: 'center',
                     textStyle: {
                         fontSize: 18,  // 設置圖例的字體大小
@@ -76,7 +75,7 @@ export default{
                     }
                 },      
                 grid: {
-                    top: '10%',
+                    top: '15%',
                     left: '3%',
                     right: '3%',
                     bottom: '6%',
@@ -84,7 +83,7 @@ export default{
                 },
                 xAxis: {
                     type: 'category',
-                    data: ['Mon', 'Tue', 'Wed', 'Thu'],
+                    data:[],
                     boundaryGap: false // 不留白，从原点开始
                 },
                 yAxis: {
@@ -114,7 +113,7 @@ export default{
                                 }])
                             }
                         },
-                        data: [32, 51, 41, 49, 50, 25,16],
+                        data: [32],
 
                     }
                 ]
@@ -122,19 +121,23 @@ export default{
         }
     },    
     created(){
-
     },
     mounted() {
-        axios.post("http://localhost:8080/pos/statistics", {   
-                        "startDate":this.startDate,
-                        "endDate":this.endDate
+        this.getTodayDate()
+
+        this.$nextTick(() => {
+            axios.post("http://localhost:8080/pos/statistics", {   
+                            "startDate":this.startDate,
+                            "endDate":this.endDate
+            })
+            .then(response => {
+                this.joinOrderList = response.data.joinOrderList
+            })
+            .then(this.drawChart())
+            .catch(error=>{
+                console.error("Error fetching statistics:", error);
+            })
         })
-        .then(response => {
-            this.joinOrderList = response.data.joinOrderList
-        })
-        
-        
-        this.drawChart()
         
     },
     computed:{
@@ -205,8 +208,29 @@ export default{
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需加 1
             const day = String(today.getDate()).padStart(2, '0'); // 確保日期是兩位數
-            return `${year}-${month}-${day}`;
+            this.startDate = `${year}-${month}-${day}`;
+            this.endDate = `${year}-${month}-${day}`;
+            
+            // return `${year}-${month}-${day}`;
         },
+        getPeriodDate(startDate, endDate){
+            if (!startDate || !endDate) {
+                console.error("startDate 或 endDate 不能為 null");
+                return [];
+            }
+            let list = [];
+            let start = new Date(startDate);
+            let end = new Date(endDate);
+
+            while (start <= end) {
+                let month = start.getMonth() + 1; // 月份從 0 開始，需要加 1
+                let day = start.getDate();
+                list.push(`${month}月${day}日`);
+                start.setDate(start.getDate() + 1); // 增加一天
+            }
+
+            return list;
+        }
     },
 
 
@@ -262,6 +286,8 @@ export default{
                 </div>
             </div>
         </div>
+        <h1>{{ startDate }}</h1>
+        <h1>{{ joinOrderList }}</h1>
 
         <div class="innerContainer2">
             <div class="innerContainer2-Left">
@@ -300,15 +326,79 @@ export default{
                     </div>
                 </div>
                 <div class="chartContainer">
-                <div class="chartLeft">
-                    <h1>銷售額分析</h1>
+                    <h1>Revenue Growth</h1>
                     <div class="echart" >
-                    </div>
                 </div>
-                
+
                 </div>
             </div>
             <div class="innerContainer2-Right">
+                <div class="title">
+                    <h1>Poppular Dishes</h1>
+                    <p>View All</p>
+                </div >
+                <div class="column">
+                    <p>Rank</p>
+                    <p>Name</p>
+                </div>
+                <div class="poppularDishes">
+                    <div class="dishItem">
+                        <p class="rank">01</p>
+                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
+                        <div class="content">
+                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <div class="quantity">
+                                <p>Orders:</p>
+                                <p>50 </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dishItem">
+                        <p class="rank">01</p>
+                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
+                        <div class="content">
+                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <div class="quantity">
+                                <p>Orders:</p>
+                                <p>50 </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dishItem">
+                        <p class="rank">01</p>
+                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
+                        <div class="content">
+                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <div class="quantity">
+                                <p>Orders:</p>
+                                <p>50 </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dishItem">
+                        <p class="rank">01</p>
+                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
+                        <div class="content">
+                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <div class="quantity">
+                                <p>Orders:</p>
+                                <p>50 </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dishItem">
+                        <p class="rank">01</p>
+                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
+                        <div class="content">
+                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <div class="quantity">
+                                <p>Orders:</p>
+                                <p>50 </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -467,10 +557,9 @@ $down-font: #388e3c;
     }
     .innerContainer2{
         width: 100%;
-        height: 70%;
+        height: 100%;
         background-color: #dcdddfaa;
         display: flex;
-        flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
         padding: 20px 20px ;
@@ -483,9 +572,10 @@ $down-font: #388e3c;
             justify-content: flex-start;
             background-color: white;
             border-radius: 12px;
+            margin: 0 20px 0 0;
             .compareContainer{
                 width: 100%;
-                height: 180px;
+                height: 30%;
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
@@ -570,11 +660,12 @@ $down-font: #388e3c;
             }
             .chartContainer{
                 width: 100%;
-                height: 350px;
+                height: 100%;
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 0 5%;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                padding: 2% 5%;
                 position: relative;
                 &:before{
                     position: absolute;
@@ -585,39 +676,108 @@ $down-font: #388e3c;
                     bottom: 0;
                     background-color: rgba(0, 0, 0, 0.232);
                 }
-                .chartLeft{
+                h1{
+                    font-size: 25px;
+                    margin: 0 0 10px 0;
+                }
+                .echart{
                     width: 100%;
                     height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    justify-content: flex-start;
-                    padding: 10px 10px ;
-                    position: relative;
-                    h1{
-                        font-size: 20px;
-                    }
-                    .echart{
-                        width: 100%;
-                        height: 100%;
-                    }
-                    &:before{
-                        position: absolute;
-                        content: "";
-                        width: 1px;                   /* 線的寬度，1px 即為細線 */
-                        height: 80%;                 /* 讓線佔滿元素的高度 */
-                        top: 10%;                       /* 讓線從頂部開始 */
-                        right: 0;                     /* 將線放在元素的右邊 */
-                        background-color: rgba(0, 0, 0, 0.232); /* 線的顏色 */
-                
-                    }
                 }
+
+                
 
             }
         }
         .innerContainer2-Right{
             width: 30%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px 30px;
+
+            .title{
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: 0 0 10px 0;
+                h1{
+                    font-size: 25px;
+                }
+                p{  
+                    font-weight: 500;
+                    color: #066a68cf;
+                }
+            }
+            .column{
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                color: #000000a5;
+                margin: 0 0 10px 0;
+                p{
+                    margin: 0 10px 0 0;
+                }
+            }
+
+            .poppularDishes{
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                // background-color: aquamarine;
+                .dishItem{
+                    width: 100%;
+                    height: 70px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    // background-color: rgb(127, 142, 255);
+                    margin: 10px 0;
+                    padding: 10px 10px;
+
+                    .rank{
+                        margin: 0 20px 0 0;
+                    }
+                    .img{
+                        width: 60px;
+                        height: 60px;
+                        border-radius: 50px;
+                        margin: 0 20px 0 0;
+                    }
+                    .content{
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        justify-content: flex-start;
+                        h1{
+                            font-size: 20px; 
+                        }
+                        .quantity{
+                            display: flex;
+                            align-items: center;
+                            justify-content: flex-start;
+                            p:nth-child(1){
+                                color: #000000aa;
+                                margin: 0 10px 0 0;
+                            }
+                            p:nth-child(2){
+                                font-weight: 500;
+                                color: rgba(255, 0, 0, 0.723);
+                            }
+                            
+                        }
+                    }
+                }
+
+            }
         }
 
     }
