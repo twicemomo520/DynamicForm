@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
-// import mouseEffect from './components/mouseEffect/mouseEffect.vue';
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const loadCircleWorklet = async () => {
@@ -70,7 +69,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 5%;
+    // margin-bottom: 5%;
 
 
   }

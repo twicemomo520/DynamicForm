@@ -89,9 +89,9 @@ const router = createRouter({
       component: () => import('../views/SidebarTest.vue')
     },    
     {
-      path: '/AnnouncementTest',
-      name: 'AnnouncementTest',
-      component: () => import('../views/AnnouncementTest.vue')
+      path: '/StatisticsReportTest',
+      name: 'StatisticsReportTest',
+      component: () => import('../views/StatisticsReportTest.vue')
     },    
     
   ]

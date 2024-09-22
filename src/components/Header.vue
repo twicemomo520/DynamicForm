@@ -43,7 +43,7 @@ export default{
             <RouterLink class = "routeItem"  to="/SeatTest" @click="changePage('SeatTest')" :class="{clickStyle: currentPage == 'SeatTest'}">
                 <i class="fa-solid fa-pen-to-square"></i>座位圖</RouterLink>
 
-            <RouterLink class = "routeItem"  to="/AnnouncementTest" @click="changePage('AnnouncementTest')" :class="{clickStyle: currentPage == 'AnnouncementTest'}">
+            <RouterLink class = "routeItem"  to="/StatisticsReportTest" @click="changePage('StatisticsReportTest')" :class="{clickStyle: currentPage == 'StatisticsReportTest'}">
                 <i class="fa-solid fa-pen-to-square"></i>公告</RouterLink>
 
             <!-- <RouterLink class = "routeItem"  to="/AlertTest" @click="changePage('AlertTest')" :class="{clickStyle: currentPage == 'AlertTest'}">

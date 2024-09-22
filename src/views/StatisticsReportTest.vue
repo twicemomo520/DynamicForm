@@ -1,5 +1,5 @@
 ﻿<script>
-import Announcement from "../components/announcement/Announcement.vue"
+import Statistics from "../components/statistics/Statistics.vue"
     export default{
         data(){
             return{
@@ -7,15 +7,15 @@ import Announcement from "../components/announcement/Announcement.vue"
             }
         },
         components:{
-            Announcement
+            Statistics
         }
     }
 </script>
 
 <template>
-    <Announcement>
+    <Statistics>
 
-    </Announcement>
+    </Statistics>
 </template>
 
 <style>
