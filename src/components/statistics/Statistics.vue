@@ -305,6 +305,7 @@ export default{
                     <div class="echart" >
                     </div>
                 </div>
+                
                 </div>
             </div>
             <div class="innerContainer2-Right">
