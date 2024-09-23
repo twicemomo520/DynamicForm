@@ -82,51 +82,14 @@ import {useHeaderPageStore} from "@/stores/headerPage"
 
 <style scoped lang="scss">
 
-@keyframes spin  {
-            0% {
-                transform: rotateX(0deg);
-            }
-            100% {
-                transform: rotateX(7200deg);
-            }
-        }
-@keyframes orbit {
-            0% {
-                transform: rotate(0deg) translateX(100px);
-            }
-            100% {
-                transform: rotate(360deg) translateX(100px);
-            }
-        }        
-@keyframes slideAnimation {
-            0%, 100% {
-                transform: translateX(0);   /* 在动画开始和结束时，按钮处于原始位置 */
-            }
-            50% {
-                transform: translateX(100dvw); /* 在动画中间，按钮向右移动100像素 */
-            }
-}
+
 .entrance{
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    // background:linear-gradient(45deg, #FFAFBD, #ffc3a0);
-    // background:linear-gradient(145deg, #c7a8ef 0%, #c7a8ef 50%, #8249cd 50%, #8249cd 100%);
 
-    // --colors: #f94144, #f3722c, #f8961e, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1;
-    // --min-radius: 20;
-    // --max-radius: 100;
-    // --num-circles: 30;
-    // --min-opacity: 10;
-    // --max-opacity: 50;
-    // --seed: 42;
-    // background-image: paint(circles);
-    // height: 100vh; /* 背景覆盖整个视口 */
-    // display: flex;
-    // align-items: center;
-    // justify-content: center;
    
     .container{
         width: 80%;
@@ -157,8 +120,7 @@ import {useHeaderPageStore} from "@/stores/headerPage"
 
             &:hover{
                 transition: 0.5s;
-                transform: rotateX(720deg) scale(1.05);
-
+                transform: scale(1.05);
             }
 
             .manageSurvey,.fa-file-lines{
@@ -183,7 +145,7 @@ import {useHeaderPageStore} from "@/stores/headerPage"
             transform-origin: -50px 50%;
             &:hover{
                 transition: 0.5s;
-                transform: rotateZ(360deg) scale(1.05); 
+                transform: scale(1.05); 
 
             }
 

@@ -7,6 +7,7 @@ export default{
             currentHead:'日',
             dateForDay: new Date(),
             dateForMonth: new Date(),
+            dateForSeason: new Date(),
             dateForYear: new Date(),
 
             startDate: null,
@@ -123,7 +124,12 @@ export default{
     created(){
     },
     mounted() {
-        this.getTodayDate()
+
+        //給startDate、endDate賦值
+        this.getTodayDate() 
+        
+        //根據給startDate、endDate 設定chart x軸範圍
+        this.optionLine.xAxis.data = this.getPeriodDate(this.startDate, this.endDate) 
 
         this.$nextTick(() => {
             axios.post("http://localhost:8080/pos/statistics", {   
@@ -132,12 +138,15 @@ export default{
             })
             .then(response => {
                 this.joinOrderList = response.data.joinOrderList
+                console.log(this.optionLine.xAxis.data)
+                console.log(this.optionLine.series[0].data)
             })
             .then(this.drawChart())
             .catch(error=>{
                 console.error("Error fetching statistics:", error);
             })
         })
+
         
     },
     computed:{
@@ -174,6 +183,26 @@ export default{
             newDate.setMonth(newDate.getMonth() + 1);
             this.dateForMonth = newDate;        
         },
+
+        ///////////////////////////////////////////////////////////
+
+        currentSeason() {
+            const year = this.dateForSeason.getFullYear();
+            const monthStart = String(this.dateForSeason.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
+            const monthEnd = String(this.dateForSeason.getMonth()+4).padStart(2, '0'); // 月份從 0 開始，需加 1
+            return `${year}年${monthStart}月~${monthEnd}月`;
+        },
+        previousSeason(){
+            const newDate = new Date(this.dateForSeason);
+            newDate.setMonth(newDate.getMonth() - 3);
+            this.dateForSeason = newDate;
+        },
+        nextSeason(){
+            const newDate = new Date(this.dateForSeason);
+            newDate.setMonth(newDate.getMonth() + 3);
+            this.dateForSeason = newDate;        
+        },
+
         ///////////////////////////////////////////////////////////
         currentYear() {
             const year = this.dateForYear.getFullYear();
@@ -210,9 +239,8 @@ export default{
             const day = String(today.getDate()).padStart(2, '0'); // 確保日期是兩位數
             this.startDate = `${year}-${month}-${day}`;
             this.endDate = `${year}-${month}-${day}`;
-            
-            // return `${year}-${month}-${day}`;
         },
+
         getPeriodDate(startDate, endDate){
             if (!startDate || !endDate) {
                 console.error("startDate 或 endDate 不能為 null");
@@ -252,6 +280,7 @@ export default{
             <div class="navHead">
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '日'}" @click="selectPeriod('日')">日</h1>
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '月'}" @click="selectPeriod('月')">月</h1>
+                <h1 class="headStyle" :class="{headStyleClick: currentHead == '季'}" @click="selectPeriod('季')">季</h1>
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '年'}" @click="selectPeriod('年')">年</h1>
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '自訂'}" @click="selectPeriod('自訂')">自訂</h1>
             </div>
@@ -267,6 +296,13 @@ export default{
                     <i class='bx bxs-chevron-left-circle bx-tada' @click="previousMonth"></i>
                     <p>{{ currentMonth }}</p>
                     <i class='bx bxs-chevron-right-circle bx-tada' @click="nextMonth"></i>
+                </div>
+            </div>
+            <div class="echartContainer" v-if="currentHead=='季'">
+                <div class="leftRightContainer">
+                    <i class='bx bxs-chevron-left-circle bx-tada' @click="previousSeason"></i>
+                    <p>{{ currentSeason }}</p>  
+                    <i class='bx bxs-chevron-right-circle bx-tada' @click="nextSeason"></i>
                 </div>
             </div>
             <div class="echartContainer" v-if="currentHead=='年'">
@@ -286,8 +322,9 @@ export default{
                 </div>
             </div>
         </div>
-        <h1>{{ startDate }}</h1>
-        <h1>{{ joinOrderList }}</h1>
+        <!-- <h1>{{ optionLine.xAxis.data }}</h1> -->
+        <!-- <h1>{{ optionLine.series[0].data }}</h1> -->
+        <!-- <h1>{{ joinOrderList }}</h1> -->
 
         <div class="innerContainer2">
             <div class="innerContainer2-Left">

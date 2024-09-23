@@ -28,7 +28,7 @@ export default{
     <div class="container">
         <div class="logo" @click="goToYouTube">
             <i class="fa-brands fa-youtube"></i>
-            <h1>Premium</h1>
+            <h1>問卷管理系統</h1>
         </div>
         <div class="headerArea">
             <RouterLink class = "routeItem"  to="/" @click="changePage('home')" :class="{clickStyle: currentPage == 'home'}">
@@ -40,11 +40,11 @@ export default{
             <RouterLink class = "routeItem"  to="/FillSurvey" @click="changePage('FillSurvey')" :class="{clickStyle: currentPage == 'FillSurvey'}">
                 <i class="fa-solid fa-pen-to-square"></i>填問卷</RouterLink>
                 
-            <RouterLink class = "routeItem"  to="/SeatTest" @click="changePage('SeatTest')" :class="{clickStyle: currentPage == 'SeatTest'}">
-                <i class="fa-solid fa-pen-to-square"></i>座位圖</RouterLink>
+            <!-- <RouterLink class = "routeItem"  to="/SeatTest" @click="changePage('SeatTest')" :class="{clickStyle: currentPage == 'SeatTest'}"> -->
+                <!-- <i class="fa-solid fa-pen-to-square"></i>座位圖</RouterLink> -->
 
-            <RouterLink class = "routeItem"  to="/StatisticsReportTest" @click="changePage('StatisticsReportTest')" :class="{clickStyle: currentPage == 'StatisticsReportTest'}">
-                <i class="fa-solid fa-pen-to-square"></i>公告</RouterLink>
+            <!-- <RouterLink class = "routeItem"  to="/StatisticsReportTest" @click="changePage('StatisticsReportTest')" :class="{clickStyle: currentPage == 'StatisticsReportTest'}">
+                <i class="fa-solid fa-pen-to-square"></i>公告</RouterLink> -->
 
             <!-- <RouterLink class = "routeItem"  to="/AlertTest" @click="changePage('AlertTest')" :class="{clickStyle: currentPage == 'AlertTest'}">
             <i class="fa-solid fa-pen-to-square"></i>Alert</RouterLink> -->
@@ -65,10 +65,10 @@ export default{
             <RouterLink class = "routeItem"  to="/BeautifulTableTest" @click="changePage('BeautifulTableTest')" :class="{clickStyle: currentPage == 'BeautifulTableTest'}">
                 <i class="fa-regular fa-face-laugh-squint"></i>BeautifulTable測試</RouterLink> -->
         </div>    
-        <div class="login">
+        <!-- <div class="login">
             <i class="fa-solid fa-user"></i>
             <h1>Login</h1>
-        </div>
+        </div> -->
     </div>    
 </template>
 
