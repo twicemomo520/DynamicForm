@@ -108,7 +108,7 @@ export default{
                                 show: false,  // 顯示數據標籤
                                 position: 'top'  // 數值顯示在數據點上方
                             },
-                        //显示出来折线图的面积
+                        
                         areaStyle: {
                             normal: {
                                 // 颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
