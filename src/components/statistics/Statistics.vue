@@ -9,9 +9,19 @@ export default{
             dateForMonth: new Date(),
             dateForSeason: new Date(),
             dateForYear: new Date(),
-
             startDate: null,
             endDate: null,
+            analysis:null,
+
+
+            preDateForDay: new Date(new Date().setDate(new Date().getDate() - 1)),
+            preDateForMonth: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+            preDateForSeason: new Date(new Date().setMonth(new Date().getMonth() - 2)),
+            preDateForYear: new Date(new Date().setYear(new Date().getFullYear() - 1)),
+            preStartDate: null,
+            preEndDate: null,
+            preAnalysis:null,
+
 
             joinOrderList:[],
 
@@ -114,7 +124,7 @@ export default{
                                 }])
                             }
                         },
-                        data: [32],
+                        data: [],
 
                     }
                 ]
@@ -132,91 +142,255 @@ export default{
         this.optionLine.xAxis.data = this.getPeriodDate(this.startDate, this.endDate) 
 
         this.$nextTick(() => {
-            axios.post("http://localhost:8080/pos/statistics", {   
+            axios.post("http://localhost:8080/pos/analysis", {   
                             "startDate":this.startDate,
                             "endDate":this.endDate
             })
             .then(response => {
-                this.joinOrderList = response.data.joinOrderList
-                console.log(this.optionLine.xAxis.data)
-                console.log(this.optionLine.series[0].data)
+                this.analysis = response.data.analysis
+                this.analysis.popularDishes = this.analysis.popularDishes.sort((a,b)=>{return b.orders-a.orders})
             })
-            .then(this.drawChart())
+            .then(()=>{
+                this.optionLine.series[0].data = [this.analysis.revenueGrowth[0].revenue]
+            })
+            .then(() => {
+                this.drawChart(); 
+            })
             .catch(error=>{
                 console.error("Error fetching statistics:", error);
             })
         })
-
-        
     },
     computed:{
         currentDay() {
+            
             const year = this.dateForDay.getFullYear();
             const month = String(this.dateForDay.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需加 1
             const day = String(this.dateForDay.getDate()).padStart(2, '0'); // 格式化日期，確保兩位數
+            this.startDate = `${year}-${month}-${day}`;
+            this.endDate = `${year}-${month}-${day}`;
+            this.postStartDateAndEndDate(this.startDate, this.endDate)
+
             return `${year}年${month}月${day}日`;
         },
+        preCurrentDay() {
+            const preYear = this.preDateForDay.getFullYear();
+            const preMonth = String(this.preDateForDay.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需加 1
+            const preDay = String(this.preDateForDay.getDate()).padStart(2, '0'); // 格式化日期，確保兩位數
+            this.preStartDate = `${preYear}-${preMonth}-${preDay}`;
+            this.preEndDate = `${preYear}-${preMonth}-${preDay}`;
+            this.postPreStartDateAndPreEndDate(this.preStartDate, this.preEndDate)
+
+            return `${preYear}年${preMonth}月${preDay}日`;
+        },
+
+
         previousDay() {
             const newDate = new Date(this.dateForDay); // 先複製當前日期
             newDate.setDate(newDate.getDate() - 1); // 修改新日期的值
             this.dateForDay = newDate; // 賦值給 date，這樣 Vue 才能監測變化
+
+            const newDate2 = new Date(this.preDateForDay); // 先複製當前日期
+            newDate2.setDate(newDate2.getDate() - 1); // 修改新日期的值
+            this.preDateForDay = newDate2; // 賦值給 date，這樣 Vue 才能監測變化
+
         },
         nextDay() {
             const newDate = new Date(this.dateForDay); // 先複製當前日期
             newDate.setDate(newDate.getDate() + 1); // 修改新日期的值
             this.dateForDay = newDate; // 賦值給 date，這樣 Vue 才能監測變化
+
+            const newDate2 = new Date(this.preDateForDay); // 先複製當前日期
+            newDate2.setDate(newDate2.getDate() + 1); // 修改新日期的值
+            this.preDateForDay = newDate2; // 賦值給 date，這樣 Vue 才能監測變化
         },
 
         ///////////////////////////////////////////////////////////
         currentMonth() {
             const year = this.dateForMonth.getFullYear();
             const month = String(this.dateForMonth.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
+
+            // 計算第一天 and 計算最後一天
+            let firstDay = new Date(year, month - 1, 1); 
+            let lastDay = new Date(year, month, 0); 
+            firstDay = String(firstDay.getDate()).padStart(2, '0')
+            lastDay = String(lastDay.getDate()).padStart(2, '0')
+            this.startDate = `${year}-${month}-${firstDay}`;
+            this.endDate = `${year}-${month}-${lastDay}`;
+            this.postStartDateAndEndDate(this.startDate, this.endDate)
+
             return `${year}年${month}月`;
+        },
+        preCurrentMonth() {
+            const preYear = this.preDateForMonth.getFullYear();
+            const preMonth = String(this.preDateForMonth.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
+
+            // 計算第一天 and 計算最後一天
+            let preFirstDay = new Date(preYear, preMonth - 1, 1); 
+            let preLastDay = new Date(preYear, preMonth, 0); 
+            preFirstDay = String(preFirstDay.getDate()).padStart(2, '0')
+            preLastDay = String(preLastDay.getDate()).padStart(2, '0')
+            this.preStartDate = `${preYear}-${preMonth}-${preFirstDay}`;
+            this.preEndDate = `${preYear}-${preMonth}-${preLastDay}`;
+            this.postPreStartDateAndPreEndDate(this.preStartDate, this.preEndDate)
+
+            return `${preYear}年${preMonth}月`;
         },
         previousMonth(){
             const newDate = new Date(this.dateForMonth);
             newDate.setMonth(newDate.getMonth() - 1);
             this.dateForMonth = newDate;
-        },
+      
+            const newDate2 = new Date(this.preDateForMonth); // 先複製當前日期
+            newDate2.setMonth(newDate2.getMonth() - 1); // 修改新日期的值
+            this.preDateForMonth = newDate2; // 賦值給 date，這樣 Vue 才能監測變化
+  },
         nextMonth(){
             const newDate = new Date(this.dateForMonth);
             newDate.setMonth(newDate.getMonth() + 1);
             this.dateForMonth = newDate;        
+
+            const newDate2 = new Date(this.preDateForMonth); // 先複製當前日期
+            newDate2.setMonth(newDate2.getMonth() + 1); // 修改新日期的值
+            this.preDateForMonth = newDate2; // 賦值給 date，這樣 Vue 才能監測變化
         },
 
         ///////////////////////////////////////////////////////////
 
         currentSeason() {
-            const year = this.dateForSeason.getFullYear();
-            const monthStart = String(this.dateForSeason.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
-            const monthEnd = String(this.dateForSeason.getMonth()+4).padStart(2, '0'); // 月份從 0 開始，需加 1
+            let year = this.dateForSeason.getFullYear();
+            let month = String(this.dateForSeason.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
+            
+            let monthStart
+            let monthEnd
+            if (month>=1 && month<=3){
+                monthStart = 1
+                monthEnd = 3
+            }
+            if (month>=4 && month<=6){
+                monthStart = 4
+                monthEnd = 6
+            }
+            if (month>=7 && month<=9){
+                monthStart = 7
+                monthEnd = 9
+            }
+            if (month>=10 && month<=12){
+                monthStart = 10
+                monthEnd = 12
+            }
+            //1~3 4~6 7~9 10~12
+            // 計算第一天 and 計算最後一天
+            let firstDay = new Date(year, monthStart, 1);
+            let lastDay = new Date(year, monthEnd, 0)
+            firstDay = String(firstDay.getDate()).padStart(2, '0')
+            lastDay = String(lastDay.getDate()).padStart(2, '0')
+            monthStart = String(monthStart).padStart(2, '0') 
+            monthEnd = String(monthEnd).padStart(2, '0') 
+            this.startDate = `${year}-${monthStart}-${firstDay}`;
+            this.endDate = `${year}-${monthEnd}-${lastDay}`;
+            this.postStartDateAndEndDate(this.startDate, this.endDate)
+
+            return `${year}年${monthStart}月~${monthEnd}月`;
+        },
+        preCurrentSeason() {
+            let year = this.preDateForSeason.getFullYear();
+            let month = String(this.preDateForSeason.getMonth()+1).padStart(2, '0'); // 月份從 0 開始，需加 1
+            
+            let monthStart
+            let monthEnd
+            if (month>=1 && month<=3){
+                monthStart = 1
+                monthEnd = 3
+            }
+            if (month>=4 && month<=6){
+                monthStart = 4
+                monthEnd = 6
+            }
+            if (month>=7 && month<=9){
+                monthStart = 7
+                monthEnd = 9
+            }
+            if (month>=10 && month<=12){
+                monthStart = 10
+                monthEnd = 12
+            }
+
+            //1~3 4~6 7~9 10~12
+            // 計算第一天 and 計算最後一天
+            let firstDay = new Date(year, monthStart, 1);
+            let lastDay = new Date(year, monthEnd, 0)
+            firstDay = String(firstDay.getDate()).padStart(2, '0')
+            lastDay = String(lastDay.getDate()).padStart(2, '0')
+            monthStart = String(monthStart).padStart(2, '0') 
+            monthEnd = String(monthEnd).padStart(2, '0') 
+            this.preStartDate = `${year}-${monthStart}-${firstDay}`;
+            this.preEndDate = `${year}-${monthEnd}-${lastDay}`;
+            this.postPreStartDateAndPreEndDate(this.preStartDate, this.preEndDate)
+
             return `${year}年${monthStart}月~${monthEnd}月`;
         },
         previousSeason(){
             const newDate = new Date(this.dateForSeason);
             newDate.setMonth(newDate.getMonth() - 3);
             this.dateForSeason = newDate;
+
+            const newDate2 = new Date(this.preDateForSeason);
+            newDate2.setMonth(newDate2.getMonth() - 3);
+            this.preDateForSeason = newDate2;
         },
         nextSeason(){
             const newDate = new Date(this.dateForSeason);
             newDate.setMonth(newDate.getMonth() + 3);
-            this.dateForSeason = newDate;        
+            this.dateForSeason = newDate;   
+
+            const newDate2 = new Date(this.preDateForSeason);
+            newDate2.setMonth(newDate2.getMonth() + 3);
+            this.preDateForSeason = newDate2;        
         },
 
         ///////////////////////////////////////////////////////////
         currentYear() {
-            const year = this.dateForYear.getFullYear();
+            let year = this.dateForYear.getFullYear();
+            let firstDay = new Date(year, 1, 1);
+            let lastDay = new Date(year, 12, 0)
+            firstDay = String(firstDay.getDate()).padStart(2, '0')
+            lastDay = String(lastDay.getDate()).padStart(2, '0')
+            this.startDate = `${year}-01-${firstDay}`;
+            this.endDate = `${year}-12-${lastDay}`;
+            this.postStartDateAndEndDate(this.startDate, this.endDate)
+
+            return `${year}年`;
+        },
+        preCurrentYear() {
+            let year = this.preDateForYear.getFullYear();
+            let firstDay = new Date(year, 1, 1);
+            let lastDay = new Date(year, 12, 0)
+            firstDay = String(firstDay.getDate()).padStart(2, '0')
+            lastDay = String(lastDay.getDate()).padStart(2, '0')
+            this.preStartDate = `${year}-01-${firstDay}`;
+            this.preEndDate = `${year}-12-${lastDay}`;
+            this.postPreStartDateAndPreEndDate(this.preStartDate, this.preEndDate)
+
             return `${year}年`;
         },
         previousYear(){
             const newDate = new Date(this.dateForYear);
             newDate.setFullYear(newDate.getFullYear() - 1);
             this.dateForYear = newDate;
+
+            const newDate2 = new Date(this.preDateForYear);
+            newDate2.setFullYear(newDate2.getFullYear() - 1);
+            this.preDateForYear = newDate2;
         },
         nextYear(){
             const newDate = new Date(this.dateForYear);
             newDate.setFullYear(newDate.getFullYear() + 1);
-            this.dateForYear = newDate;        
+            this.dateForYear = newDate;
+
+            const newDate2 = new Date(this.preDateForYear);
+            newDate2.setFullYear(newDate2.getFullYear() + 1);
+            this.preDateForYear = newDate2;        
         },
 
 
@@ -228,8 +402,54 @@ export default{
             const myChart = echarts.init(document.querySelector(".echart"))
             myChart.setOption(this.optionLine)
         },
+
         selectPeriod(type){
             this.currentHead = type
+        },
+
+        calRevenueGrowth(){
+            const analysis = this.analysis
+            const preAnalysis = this.preAnalysis
+            let revenueUpRate = (analysis.totalRevenue-preAnalysis.totalRevenue)/preAnalysis.totalRevenue*100
+            revenueUpRate = Math.round(revenueUpRate)
+            return revenueUpRate
+        },
+        calOrdersGrowth(){
+            const analysis = this.analysis
+            const preAnalysis = this.preAnalysis
+            let ordersUpRate = (analysis.totalOrders-preAnalysis.totalOrders)/preAnalysis.totalOrders*100
+            ordersUpRate = Math.round(ordersUpRate)
+            return ordersUpRate
+        },
+
+        postStartDateAndEndDate(startDate, endDate){
+            axios.post("http://localhost:8080/pos/analysis", {   
+                            "startDate":startDate,
+                            "endDate":endDate
+            })
+            .then(response=>{
+                this.analysis = response.data.analysis
+                this.analysis.popularDishes.sort((a,b)=>{return b.orders-a.orders})
+            })
+            .then(()=>{
+                this.optionLine.xAxis.data = this.getPeriodDate(startDate, endDate)
+                this.optionLine.series[0].data = this.analysis.revenueGrowth.map(item=>{
+                    return item.revenue
+                })
+            })
+            .then(()=>{
+                this.drawChart()
+            })
+        },
+        postPreStartDateAndPreEndDate(startDate, endDate){
+            axios.post("http://localhost:8080/pos/analysis", {   
+                            "startDate":startDate,
+                            "endDate":endDate
+            })
+            .then(response=>{
+                this.preAnalysis = response.data.analysis
+                this.preAnalysis.popularDishes.sort((a,b)=>{return b.orders-a.orders})
+            })
         },
 
         getTodayDate() {
@@ -239,6 +459,13 @@ export default{
             const day = String(today.getDate()).padStart(2, '0'); // 確保日期是兩位數
             this.startDate = `${year}-${month}-${day}`;
             this.endDate = `${year}-${month}-${day}`;
+
+            const preToday = new Date(new Date().setDate(new Date().getDate() - 1));
+            const preYear = preToday.getFullYear();
+            const preMonth = String(preToday.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需加 1
+            const preDay = String(preToday.getDate()).padStart(2, '0'); // 確保日期是兩位數
+            this.preStartDate = `${preYear}-${preMonth}-${preDay}`;
+            this.preEndDate = `${preYear}-${preMonth}-${preDay}`;
         },
 
         getPeriodDate(startDate, endDate){
@@ -251,12 +478,12 @@ export default{
             let end = new Date(endDate);
 
             while (start <= end) {
+                let year = start.getFullYear(); // 月份從 0 開始，需要加 1
                 let month = start.getMonth() + 1; // 月份從 0 開始，需要加 1
                 let day = start.getDate();
-                list.push(`${month}月${day}日`);
+                list.push(`${year}年${month}月${day}日`);
                 start.setDate(start.getDate() + 1); // 增加一天
             }
-
             return list;
         }
     },
@@ -282,12 +509,13 @@ export default{
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '月'}" @click="selectPeriod('月')">月</h1>
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '季'}" @click="selectPeriod('季')">季</h1>
                 <h1 class="headStyle" :class="{headStyleClick: currentHead == '年'}" @click="selectPeriod('年')">年</h1>
-                <h1 class="headStyle" :class="{headStyleClick: currentHead == '自訂'}" @click="selectPeriod('自訂')">自訂</h1>
+                <!-- <h1 class="headStyle" :class="{headStyleClick: currentHead == '自訂'}" @click="selectPeriod('自訂')">自訂</h1> -->
             </div>
             <div class="echartContainer" v-if="currentHead=='日'">
                 <div class="leftRightContainer">
                     <i class='bx bxs-chevron-left-circle bx-tada' @click="previousDay"></i>
                     <p>{{ currentDay }}</p>
+                    <p>{{ preCurrentDay }}</p>
                     <i class='bx bxs-chevron-right-circle bx-tada' @click="nextDay"></i>
                 </div>
             </div>
@@ -295,13 +523,15 @@ export default{
                 <div class="leftRightContainer">
                     <i class='bx bxs-chevron-left-circle bx-tada' @click="previousMonth"></i>
                     <p>{{ currentMonth }}</p>
+                    <p>{{ preCurrentMonth }}</p>
                     <i class='bx bxs-chevron-right-circle bx-tada' @click="nextMonth"></i>
                 </div>
             </div>
             <div class="echartContainer" v-if="currentHead=='季'">
                 <div class="leftRightContainer">
                     <i class='bx bxs-chevron-left-circle bx-tada' @click="previousSeason"></i>
-                    <p>{{ currentSeason }}</p>  
+                    <p>{{ currentSeason }}</p> 
+                    <p>{{ preCurrentSeason }}</p>
                     <i class='bx bxs-chevron-right-circle bx-tada' @click="nextSeason"></i>
                 </div>
             </div>
@@ -309,10 +539,11 @@ export default{
                 <div class="leftRightContainer">
                     <i class='bx bxs-chevron-left-circle bx-tada' @click="previousYear"></i>
                     <p>{{ currentYear }}</p>
+                    <p>{{ preCurrentYear }}</p>
                     <i class='bx bxs-chevron-right-circle bx-tada' @click="nextYear"></i>
                 </div>
             </div>
-            <div class="echartContainer" v-if="currentHead=='自訂'">
+            <!-- <div class="echartContainer" v-if="currentHead=='自訂'">
                 <p>請選擇日期範圍</p>
                 <div class="leftRightContainer">
                     <p>開始</p>
@@ -320,11 +551,25 @@ export default{
                     <p>結束</p>
                     <input type="date" v-model="startDate">
                 </div>
-            </div>
+            </div> -->
         </div>
         <!-- <h1>{{ optionLine.xAxis.data }}</h1> -->
         <!-- <h1>{{ optionLine.series[0].data }}</h1> -->
         <!-- <h1>{{ joinOrderList }}</h1> -->
+        <!-- <h1>{{ analysis }}</h1> -->
+        <!-- <h1>{{ preAnalysis }}</h1> -->
+        <!-- <h1>{{ startDate }}</h1>
+        <h1>{{ endDate }}</h1>
+
+        <h1>{{ dateForDay }}</h1>
+        <h1>{{ preDateForDay }}</h1>
+        <h1>{{ dateForMonth }}</h1>
+        <h1>{{ preDateForMonth }}</h1>
+        <h1>{{ dateForSeason }}</h1>
+        <h1>{{ preDateForSeason }}</h1>
+        <h1>{{ dateForYear }}</h1>
+        <h1>{{ preDateForYear }}</h1> -->
+        
 
         <div class="innerContainer2">
             <div class="innerContainer2-Left">
@@ -332,32 +577,44 @@ export default{
                     <div class="compareItem">
                         <p class="title">總銷售額</p>
                         <div class="content">
-                            <p class="contentNumber">23,568</p>
-                            <div class="contentRateUp" v-if="ascend">
-                                <p>5%</p>
-                                <i class='bx bx-trending-up'></i>
-                            </div>
-                            <div class="contentRateDown" v-if="!ascend">
-                                <p>5%</p>
-                                <i class='bx bx-trending-down'></i>
-                            </div>
+                            <p class="contentNumber">${{ analysis.totalRevenue }}</p>
+                            <!-- <p class="contentNumber">{{ preAnalysis.totalRevenue }}</p> -->
                         </div>
-                        <p class="compareWhat">Compare to last month</p>
+                        <div class="foot">
+                            <div class="contentRateUp" v-if="calRevenueGrowth()>=0">
+                                <i class='bx bx-trending-up'></i>
+                                <p>{{calRevenueGrowth()}}%</p>
+                            </div>
+                            <div class="contentRateDown" v-if="calRevenueGrowth()<0">
+                                <i class='bx bx-trending-down'></i>
+                                <p>{{calRevenueGrowth()}}%</p>
+                            </div>
+                            <p class="compareWhat" v-if="currentHead=='日'">Compare to last day</p>
+                            <p class="compareWhat" v-if="currentHead=='月'">Compare to last month</p>
+                            <p class="compareWhat" v-if="currentHead=='季'">Compare to last season</p>
+                            <p class="compareWhat" v-if="currentHead=='年'">Compare to last year</p>
+                        </div>    
                     </div>
                     <div class="compareItem">
                         <p class="title">總銷售量</p>
                         <div class="content">
-                            <p class="contentNumber">1,250</p>
-                            <div class="contentRateUp" v-if="ascend">
-                                <p>5%</p>
-                                <i class='bx bx-trending-up'></i>
-                            </div>
-                            <div class="contentRateDown" v-if="!ascend">
-                                <p>5%</p>
-                                <i class='bx bx-trending-down'></i>
-                            </div>
+                            <p class="contentNumber">{{ analysis.totalOrders }}</p>
+                            <!-- <p class="contentNumber">{{ preAnalysis.totalOrders }}</p> -->
                         </div>
-                        <p class="compareWhat">Compare to last month</p>
+                        <div class="foot">
+                            <div class="contentRateUp" v-if="calOrdersGrowth()>=0">
+                                <i class='bx bx-trending-up'></i>
+                                <p>{{calOrdersGrowth()}}%</p>
+                            </div>
+                            <div class="contentRateDown" v-if="calOrdersGrowth()<0">
+                                <i class='bx bx-trending-down'></i>
+                                <p>{{calOrdersGrowth()}}%</p>
+                            </div>
+                            <p class="compareWhat" v-if="currentHead=='日'">Compare to last day</p>
+                            <p class="compareWhat" v-if="currentHead=='月'">Compare to last month</p>
+                            <p class="compareWhat" v-if="currentHead=='季'">Compare to last season</p>
+                            <p class="compareWhat" v-if="currentHead=='年'">Compare to last year</p>
+                        </div>    
                     </div>
                     <div class="compareItem">
                     </div>
@@ -379,58 +636,14 @@ export default{
                     <p>Name</p>
                 </div>
                 <div class="poppularDishes">
-                    <div class="dishItem">
-                        <p class="rank">01</p>
+                    <div class="dishItem" v-for="(dish,index) in analysis.popularDishes">
+                        <p class="rank">{{ String(index+1).padStart(2,"0")}}</p>
                         <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
                         <div class="content">
-                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
+                            <h1 class="name">{{dish.name}}</h1>
                             <div class="quantity">
                                 <p>Orders:</p>
-                                <p>50 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dishItem">
-                        <p class="rank">01</p>
-                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
-                        <div class="content">
-                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
-                            <div class="quantity">
-                                <p>Orders:</p>
-                                <p>50 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dishItem">
-                        <p class="rank">01</p>
-                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
-                        <div class="content">
-                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
-                            <div class="quantity">
-                                <p>Orders:</p>
-                                <p>50 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dishItem">
-                        <p class="rank">01</p>
-                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
-                        <div class="content">
-                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
-                            <div class="quantity">
-                                <p>Orders:</p>
-                                <p>50 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dishItem">
-                        <p class="rank">01</p>
-                        <img class="img" src="https://tokyo-kitchen.icook.network/uploads/recipe/cover/420886/dd9e8293a9b1a758.jpg" alt="">
-                        <div class="content">
-                            <h1 class="name">香椿檸檬豬排波羅堡</h1>
-                            <div class="quantity">
-                                <p>Orders:</p>
-                                <p>50 </p>
+                                <p>{{ dish.orders }}</p>
                             </div>
                         </div>
                     </div>
@@ -660,13 +873,22 @@ $down-font: #388e3c;
                             font-size: 50px;
                             margin: 0 15px 0 0;
                         }
+
+                    }
+                    .foot{
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-start;
                         .contentRateUp{
+                            width: 80px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 60px;
                             text-align: center;
+                            border-radius: 12px;
                             background-color: $up-background;
+                            margin: 0 10px 0 0;
                             p{
                                 color: $up-font;
                             }
@@ -675,12 +897,15 @@ $down-font: #388e3c;
                             }
                         }
                         .contentRateDown{
+                            width: 80px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 60px;
                             text-align: center;
+                            border-radius: 12px;
+                            margin: 0 10px 0 0;
                             background-color: $down-background;
+
                             p{
                                 color: $down-font;
                             }
@@ -688,10 +913,9 @@ $down-font: #388e3c;
                                 color: $down-font;
                             }
                         }
-
-                    }
-                    .compareWhat{
-                        color: #5D6165;
+                        .compareWhat{
+                            color: #5D6165;
+                        }
                     }
                 }
             }
@@ -736,6 +960,7 @@ $down-font: #388e3c;
             background-color: white;
             border-radius: 12px;
             padding: 30px 30px;
+            overflow-y: scroll;
 
             .title{
                 width: 100%;
