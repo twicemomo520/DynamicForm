@@ -487,88 +487,65 @@ export default{
             return list;
         }
     },
-
-
 }
 </script>
 
 <template>
     <div class="container">
-
         <div class="innerContainer">
-
             <div class="dashboardContainer">
-                <h1 class="dashboardLeft">Dashboard</h1>
+                <div class="dashboardLeft">
+                    <div class="navHead">
+                        <h1 class="headStyle" :class="{headStyleClick: currentHead == '日'}" @click="selectPeriod('日')">日</h1>
+                        <h1 class="headStyle" :class="{headStyleClick: currentHead == '月'}" @click="selectPeriod('月')">月</h1>
+                        <h1 class="headStyle" :class="{headStyleClick: currentHead == '季'}" @click="selectPeriod('季')">季</h1>
+                        <h1 class="headStyle" :class="{headStyleClick: currentHead == '年'}" @click="selectPeriod('年')">年</h1>
+                        <!-- <h1 class="headStyle" :class="{headStyleClick: currentHead == '自訂'}" @click="selectPeriod('自訂')">自訂</h1> -->
+                    </div>
+                    <div class="echartContainer" v-if="currentHead=='日'">
+                        <div class="leftRightContainer">
+                            <i class='bx bxs-chevron-left-circle bx-tada' @click="previousDay"></i>
+                            <p>{{ currentDay }}</p>
+                            <i class='bx bxs-chevron-right-circle bx-tada' @click="nextDay"></i>
+                        </div>
+                    </div>
+                    <div class="echartContainer" v-if="currentHead=='月'">
+                        <div class="leftRightContainer">
+                            <i class='bx bxs-chevron-left-circle bx-tada' @click="previousMonth"></i>
+                            <p>{{ currentMonth }}</p>
+                            <i class='bx bxs-chevron-right-circle bx-tada' @click="nextMonth"></i>
+                        </div>
+                    </div>
+                    <div class="echartContainer" v-if="currentHead=='季'">
+                        <div class="leftRightContainer">
+                            <i class='bx bxs-chevron-left-circle bx-tada' @click="previousSeason"></i>
+                            <p>{{ currentSeason }}</p> 
+                            <i class='bx bxs-chevron-right-circle bx-tada' @click="nextSeason"></i>
+                        </div>
+                    </div>
+                    <div class="echartContainer" v-if="currentHead=='年'">
+                        <div class="leftRightContainer">
+                            <i class='bx bxs-chevron-left-circle bx-tada' @click="previousYear"></i>
+                            <p>{{ currentYear }}</p>
+                            <i class='bx bxs-chevron-right-circle bx-tada' @click="nextYear"></i>
+                        </div>
+                    </div>
+                    <!-- <div class="echartContainer" v-if="currentHead=='自訂'">
+                        <p>請選擇日期範圍</p>
+                        <div class="leftRightContainer">
+                            <p>開始</p>
+                            <input type="date" v-model="startDate">
+                            <p>結束</p>
+                            <input type="date" v-model="startDate">
+                        </div>
+                    </div> -->
+                </div>
                 <div class="dashboardRight">
                     <i class='bx bxs-grid'></i>
                     <button>Export CSV</button>
                 </div>
             </div>
-            <div class="navHead">
-                <h1 class="headStyle" :class="{headStyleClick: currentHead == '日'}" @click="selectPeriod('日')">日</h1>
-                <h1 class="headStyle" :class="{headStyleClick: currentHead == '月'}" @click="selectPeriod('月')">月</h1>
-                <h1 class="headStyle" :class="{headStyleClick: currentHead == '季'}" @click="selectPeriod('季')">季</h1>
-                <h1 class="headStyle" :class="{headStyleClick: currentHead == '年'}" @click="selectPeriod('年')">年</h1>
-                <!-- <h1 class="headStyle" :class="{headStyleClick: currentHead == '自訂'}" @click="selectPeriod('自訂')">自訂</h1> -->
-            </div>
-            <div class="echartContainer" v-if="currentHead=='日'">
-                <div class="leftRightContainer">
-                    <i class='bx bxs-chevron-left-circle bx-tada' @click="previousDay"></i>
-                    <p>{{ currentDay }}</p>
-                    <p>{{ preCurrentDay }}</p>
-                    <i class='bx bxs-chevron-right-circle bx-tada' @click="nextDay"></i>
-                </div>
-            </div>
-            <div class="echartContainer" v-if="currentHead=='月'">
-                <div class="leftRightContainer">
-                    <i class='bx bxs-chevron-left-circle bx-tada' @click="previousMonth"></i>
-                    <p>{{ currentMonth }}</p>
-                    <p>{{ preCurrentMonth }}</p>
-                    <i class='bx bxs-chevron-right-circle bx-tada' @click="nextMonth"></i>
-                </div>
-            </div>
-            <div class="echartContainer" v-if="currentHead=='季'">
-                <div class="leftRightContainer">
-                    <i class='bx bxs-chevron-left-circle bx-tada' @click="previousSeason"></i>
-                    <p>{{ currentSeason }}</p> 
-                    <p>{{ preCurrentSeason }}</p>
-                    <i class='bx bxs-chevron-right-circle bx-tada' @click="nextSeason"></i>
-                </div>
-            </div>
-            <div class="echartContainer" v-if="currentHead=='年'">
-                <div class="leftRightContainer">
-                    <i class='bx bxs-chevron-left-circle bx-tada' @click="previousYear"></i>
-                    <p>{{ currentYear }}</p>
-                    <p>{{ preCurrentYear }}</p>
-                    <i class='bx bxs-chevron-right-circle bx-tada' @click="nextYear"></i>
-                </div>
-            </div>
-            <!-- <div class="echartContainer" v-if="currentHead=='自訂'">
-                <p>請選擇日期範圍</p>
-                <div class="leftRightContainer">
-                    <p>開始</p>
-                    <input type="date" v-model="startDate">
-                    <p>結束</p>
-                    <input type="date" v-model="startDate">
-                </div>
-            </div> -->
         </div>
-        <!-- <h1>{{ optionLine.xAxis.data }}</h1> -->
-        <!-- <h1>{{ optionLine.series[0].data }}</h1> -->
-        <!-- <h1>{{ joinOrderList }}</h1> -->
-        <!-- <h1>{{ analysis }}</h1> -->
-        <!-- <h1>{{ preAnalysis }}</h1> -->
-        <!-- <h1>{{ startDate }}</h1>
-        <h1>{{ endDate }}</h1>
-
-        <h1>{{ dateForDay }}</h1>
-        <h1>{{ preDateForDay }}</h1>
-        <h1>{{ dateForMonth }}</h1>
-        <h1>{{ preDateForMonth }}</h1>
-        <h1>{{ dateForSeason }}</h1>
-        <h1>{{ preDateForSeason }}</h1>
-        <h1>{{ dateForYear }}</h1>
-        <h1>{{ preDateForYear }}</h1> -->
         
 
         <div class="innerContainer2">
@@ -677,7 +654,7 @@ $down-font: #388e3c;
     justify-content: flex-start;
     .innerContainer{
         width: 100%;
-        height: 30%;
+        height: 20%;
         background-color: #dcdddfaa;
         display: flex;
         flex-direction: column;
@@ -685,129 +662,110 @@ $down-font: #388e3c;
         justify-content: flex-start;
         .dashboardContainer{
             width: 100%;
-            height: 50px;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 2% 5%;
-            position: relative;
-            &:before{
-                position: absolute;
-                content: "";
-                width: 100%;
-                height: 1px;
-                left: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.232);
-            }
-            
+            padding: 20px 20px;
+
             .dashboardLeft{
-                font-size: 25px;
+                width: 70%;
+                height: 100%;
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                align-items: flex-end;
+                justify-content: flex-start;
+                .navHead{
+                    width: 40%;
+                    height: 40px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: rgba(130, 130, 130, 0.503);
+                    border-radius: 10px;
+                    margin-right: 10px;
+                    position: relative;
+                    .headStyle{
+                        width: 25%;
+                        height: 40px;
+                        font-size: 20px;
+                        text-align: center;
+                        display: flex;
+                        justify-content: center;  /* 水平居中 */
+                        align-items: center;      /* 垂直居中 */
+                        cursor: pointer;
+
+                        &:hover{
+                            color: white;
+                            background-color: rgba(0, 0, 255, 0.301);
+                            border-radius: 10px;
+                        }
+                    }
+
+                    .headStyleClick {
+                        color: white;
+                        background-color: rgba(0, 0, 255, 0.301);
+                        border-radius: 10px;
+                    }
+
+                    }
+                .echartContainer {
+                    height: 40px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: flex-start;
+                    .leftRightContainer{
+                        width: 100%;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        i{
+                            font-size: 40px;
+                            cursor: pointer;
+                        }
+                        p{
+                            font-size: 25px;
+                            margin: 0 20px;
+                        }
+                        input{
+                            width: 150px;
+                            height: 40px;
+                            border-radius: 12px;
+                        }
+                    }
+                }
             }
             .dashboardRight{
+                width: 30%;
+                height: 100%;
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                align-items: flex-end;
+                justify-content: flex-end;
                 i{
                     font-size: 25px;
-                    margin: 0 10px 0 0;
+                    margin: 0 10px 6px 0;
                     cursor: pointer;
 
                 }
-
                 button{
                     width: 120px;
                     height: 40px;
+                    cursor: pointer;
                     font-size: 18px;
                     color: white;
                     border: none;
                     border-radius: 10px;
                     background-color: #2DB976;
-                    cursor: pointer;
                 }
             }
         }
-        .navHead{
-            width: 30%;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(130, 130, 130, 0.503);
-            border-radius: 10px;
-            margin: 30px 0 0 0;
-            // padding: 0 10px;
-            position: relative;
-            .headStyle{
-                width: 25%;
-                height: 40px;
-                font-size: 20px;
-                text-align: center;
-                display: flex;
-                justify-content: center;  /* 水平居中 */
-                align-items: center;      /* 垂直居中 */
-                cursor: pointer;
 
-                &:hover{
-                    color: white;
-                    background-color: rgba(0, 0, 255, 0.301);
-                    border-radius: 10px;
-                }
-            }
 
-            .headStyleClick {
-                color: white;
-                background-color: rgba(0, 0, 255, 0.301);
-                border-radius: 10px;
-            }
-
-        }
-        .echartContainer {
-            width: 100%;
-            height: 90px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            margin-top: 10px;
-            position: relative;
-            &:before{
-                position: absolute;
-                content: "";
-                width: 100%;
-                height: 1px;
-                left: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.232);
-            }
-            .leftRightContainer{
-                width: 100%;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                i{
-                    font-size: 40px;
-                    cursor: pointer;
-                }
-                p{
-                    font-size: 25px;
-                    margin: 0 20px;
-                }
-                input{
-                    width: 150px;
-                    height: 40px;
-                    border-radius: 12px;
-                }
-            }
-        }
     }
     .innerContainer2{
         width: 100%;
-        height: 100%;
+        height: 80%;
         background-color: #dcdddfaa;
         display: flex;
         align-items: flex-start;
