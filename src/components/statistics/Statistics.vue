@@ -163,7 +163,6 @@ export default{
     },
     computed:{
         currentDay() {
-            
             const year = this.dateForDay.getFullYear();
             const month = String(this.dateForDay.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始，需加 1
             const day = String(this.dateForDay.getDate()).padStart(2, '0'); // 格式化日期，確保兩位數
@@ -193,6 +192,7 @@ export default{
             const newDate2 = new Date(this.preDateForDay); // 先複製當前日期
             newDate2.setDate(newDate2.getDate() - 1); // 修改新日期的值
             this.preDateForDay = newDate2; // 賦值給 date，這樣 Vue 才能監測變化
+
 
         },
         nextDay() {
@@ -553,24 +553,7 @@ export default{
                 </div>
             </div> -->
         </div>
-        <!-- <h1>{{ optionLine.xAxis.data }}</h1> -->
-        <!-- <h1>{{ optionLine.series[0].data }}</h1> -->
-        <!-- <h1>{{ joinOrderList }}</h1> -->
-        <!-- <h1>{{ analysis }}</h1> -->
-        <!-- <h1>{{ preAnalysis }}</h1> -->
-        <!-- <h1>{{ startDate }}</h1>
-        <h1>{{ endDate }}</h1>
-
-        <h1>{{ dateForDay }}</h1>
-        <h1>{{ preDateForDay }}</h1>
-        <h1>{{ dateForMonth }}</h1>
-        <h1>{{ preDateForMonth }}</h1>
-        <h1>{{ dateForSeason }}</h1>
-        <h1>{{ preDateForSeason }}</h1>
-        <h1>{{ dateForYear }}</h1>
-        <h1>{{ preDateForYear }}</h1> -->
         
-
         <div class="innerContainer2">
             <div class="innerContainer2-Left">
                 <div class="compareContainer">

@@ -69,8 +69,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    // margin-bottom: 5%;
-
+    margin-bottom: 5%;
 
   }
 }
